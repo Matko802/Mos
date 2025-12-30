@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -47,6 +47,37 @@
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
+      }
+      
+      /* ============= CUSTOM SCROLLBAR - Hide Native Everywhere ============= */
+      /* Hide native scrollbars globally */
+      * {
+        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important; /* IE/Edge */
+      }
+      
+      *::-webkit-scrollbar {
+        display: none !important; /* Chrome/Safari/Opera */
+        width: 0 !important;
+        height: 0 !important;
+      }
+      
+      /* Legacy fallback classes - keep for compatibility */
+      .custom-scroll {
+        overflow: hidden !important;
+        position: relative;
+      }
+      
+      .custom-scroll-content {
+        overflow: scroll;
+        height: 100%;
+        width: 100%;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      
+      .custom-scroll-content::-webkit-scrollbar {
+        display: none;
       }
       
       /* Theme transitions only on specific UI elements - NOT globally to avoid flicker */
@@ -275,18 +306,6 @@
         background: transparent !important;
       }
       
-      /* Version Manager - transparent content to show window blur */
-      .window[data-app="versionmanager"] .window-content {
-        background: transparent !important;
-      }
-      
-      .window[data-app="versionmanager"] .versionmanager-container {
-        background: transparent !important;
-      }
-      
-      .window[data-app="versionmanager"] .versionmanager-sidebar {
-        background: hsl(var(--accent) / 0.3) !important;
-      }
 
       .settings-container {
         display: flex;
@@ -2351,6 +2370,7 @@
         -webkit-user-select: text;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain; /* Prevent scroll from propagating to other windows */
       }
       
       /* Ensure settings and other scrollable content work properly */
@@ -2462,6 +2482,7 @@
       /* Individual windows get pointer-events back */
       .windows-layer .window {
         pointer-events: auto;
+        overscroll-behavior: contain; /* Prevent scroll chaining between windows */
       }
       
       /* System UI layer - dock and menubar are ABOVE windows layer */
@@ -3760,6 +3781,8 @@
                     color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         scrollbar-width: thin;
         scrollbar-color: rgba(128, 128, 128, 0.5) transparent;
+        overscroll-behavior: contain; /* Prevent scroll chaining to other windows */
+        isolation: isolate; /* Create stacking context */
       }
 
       .window-content::-webkit-scrollbar {
@@ -3784,17 +3807,17 @@
 
       .resize-handle {
         position: absolute;
-        z-index: 10;
+        z-index: 100000;
       }
       
-      .resize-handle.se { bottom: 0; right: 0; width: 16px; height: 16px; cursor: se-resize; }
-      .resize-handle.sw { bottom: 0; left: 0; width: 16px; height: 16px; cursor: sw-resize; }
-      .resize-handle.ne { top: 0; right: 0; width: 16px; height: 16px; cursor: ne-resize; }
-      .resize-handle.nw { top: 0; left: 0; width: 16px; height: 16px; cursor: nw-resize; }
-      .resize-handle.n { top: 0; left: 0; right: 0; height: 4px; cursor: n-resize; }
-      .resize-handle.s { bottom: 0; left: 0; right: 0; height: 4px; cursor: s-resize; }
-      .resize-handle.e { top: 0; bottom: 0; right: 0; width: 4px; cursor: e-resize; }
-      .resize-handle.w { top: 0; bottom: 0; left: 0; width: 4px; cursor: w-resize; }
+      .resize-handle.se { bottom: 0; right: 0; width: 20px; height: 20px; cursor: se-resize; }
+      .resize-handle.sw { bottom: 0; left: 0; width: 20px; height: 20px; cursor: sw-resize; }
+      .resize-handle.ne { top: 0; right: 0; width: 20px; height: 20px; cursor: ne-resize; }
+      .resize-handle.nw { top: 0; left: 0; width: 20px; height: 20px; cursor: nw-resize; }
+      .resize-handle.n { top: 0; left: 20px; right: 20px; height: 6px; cursor: n-resize; }
+      .resize-handle.s { bottom: 0; left: 20px; right: 20px; height: 6px; cursor: s-resize; }
+      .resize-handle.e { top: 20px; bottom: 20px; right: 0; width: 6px; cursor: e-resize; }
+      .resize-handle.w { top: 20px; bottom: 20px; left: 0; width: 6px; cursor: w-resize; }
 
       .terminal-content {
         background: #000;
@@ -4180,7 +4203,7 @@
       }
       
       .browser-container.vertical-tabs .browser-header {
-        flex-direction: row;
+        flex-direction: column;
       }
       
       .browser-container.vertical-tabs .browser-sidebar {
@@ -4223,6 +4246,7 @@
         display: flex;
         flex-direction: column;
         min-width: 0;
+        width: 0;
       }
       
       .browser-container.vertical-tabs .browser-toolbar-wrapper {
@@ -5826,7 +5850,9 @@
       .setup-screen {
         position: fixed;
         inset: 0;
-        background: hsl(var(--background));
+        background: hsl(var(--background) / 0.7);
+        backdrop-filter: blur(40px) saturate(180%);
+        -webkit-backdrop-filter: blur(40px) saturate(180%);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -5835,7 +5861,8 @@
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.5s ease, 
-                    background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                    background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                    backdrop-filter 0.6s ease;
       }
       
       .setup-screen.active {
@@ -5846,7 +5873,6 @@
       /* Smooth theme transition for setup screen elements */
       .setup-screen,
       .setup-container,
-      .setup-logo,
       .setup-title,
       .setup-subtitle,
       .setup-label,
@@ -5867,33 +5893,61 @@
         width: 100%;
         max-width: 440px;
         padding: 40px;
-        background: hsl(var(--window-bg));
-        border: 1px solid hsl(var(--window-border));
-        border-radius: 28px;
-        box-shadow: 0 20px 60px hsl(var(--shadow-color) / 0.3);
+        background: hsl(var(--window-bg) / 0.85);
+        backdrop-filter: blur(30px) saturate(150%);
+        -webkit-backdrop-filter: blur(30px) saturate(150%);
+        border: 1px solid hsl(var(--window-border) / 0.5);
+        border-radius: 16px;
+        box-shadow: 0 25px 80px hsl(var(--shadow-color) / 0.4),
+                    0 0 0 1px hsl(var(--window-border) / 0.2),
+                    inset 0 1px 0 0 hsl(0 0% 100% / 0.08);
         transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
                     border-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                    box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                    max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
       }
       
       .setup-header {
         text-align: center;
         margin-bottom: 32px;
+        perspective: 1000px;
       }
       
+      /* Simple M Logo - Circle with M letter */
       .setup-logo {
-        width: 80px;
-        height: 80px;
+        width: 72px;
+        height: 72px;
         background: hsl(var(--foreground));
-        border-radius: 22px;
+        border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 42px;
-        font-weight: 700;
+        font-size: 36px;
+        font-weight: 600;
         color: hsl(var(--background));
         margin-bottom: 16px;
-        box-shadow: 0 8px 24px hsl(var(--shadow-color) / 0.3);
+        box-shadow: 0 4px 16px hsl(var(--shadow-color) / 0.25);
+        font-family: 'Space Grotesk', sans-serif;
+        letter-spacing: 0.02em;
+      }
+      
+      .setup-logo.spinning {
+        animation: logoSpin 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        animation-iteration-count: 1;
+      }
+      
+      @keyframes logoSpin {
+        0% {
+          transform: rotate(0deg) scale(1);
+        }
+        50% {
+          transform: rotate(180deg) scale(1.05);
+        }
+        100% {
+          transform: rotate(360deg) scale(1);
+        }
       }
       
       .setup-title {
@@ -5910,17 +5964,221 @@
       
       .setup-step {
         display: none;
+        opacity: 0;
+        transform: translateX(30px);
       }
       
       .setup-step.active {
         display: block;
-        animation: setupFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: slideIn 0.4s ease forwards;
       }
       
-      @keyframes setupFadeIn {
-        0% { opacity: 0; transform: translateY(20px) scale(0.95); }
-        60% { opacity: 1; transform: translateY(-5px) scale(1.02); }
-        100% { opacity: 1; transform: translateY(0) scale(1); }
+      .setup-step.exiting {
+        display: block;
+        animation: slideOut 0.3s ease forwards;
+      }
+      
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      
+      @keyframes slideOut {
+        from {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+      }
+      
+      /* Welcome screen with cycling languages */
+      .setup-welcome-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        padding: 20px;
+        position: relative;
+        overflow: visible;
+      }
+      
+      /* 3D Globe Container */
+      .setup-globe {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        perspective: 800px;
+        z-index: 0;
+      }
+      
+      .setup-globe-sphere {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        animation: globeRotate 25s linear infinite;
+      }
+      
+      /* Latitude rings */
+      .globe-ring {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        border: 1px solid hsl(var(--primary) / 0.3);
+        border-radius: 50%;
+        transform-origin: center center;
+      }
+      
+      .globe-ring.lat-0 {
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
+        transform: rotateX(90deg);
+      }
+      
+      .globe-ring.lat-30 {
+        width: 173px;
+        height: 173px;
+        margin-left: -86.5px;
+        margin-top: -86.5px;
+        transform: rotateX(90deg) translateZ(50px);
+      }
+      
+      .globe-ring.lat-30-neg {
+        width: 173px;
+        height: 173px;
+        margin-left: -86.5px;
+        margin-top: -86.5px;
+        transform: rotateX(90deg) translateZ(-50px);
+      }
+      
+      .globe-ring.lat-60 {
+        width: 100px;
+        height: 100px;
+        margin-left: -50px;
+        margin-top: -50px;
+        transform: rotateX(90deg) translateZ(87px);
+      }
+      
+      .globe-ring.lat-60-neg {
+        width: 100px;
+        height: 100px;
+        margin-left: -50px;
+        margin-top: -50px;
+        transform: rotateX(90deg) translateZ(-87px);
+      }
+      
+      /* Longitude rings */
+      .globe-ring.lon-0 {
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
+        transform: rotateY(0deg);
+      }
+      
+      .globe-ring.lon-30 {
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
+        transform: rotateY(30deg);
+      }
+      
+      .globe-ring.lon-60 {
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
+        transform: rotateY(60deg);
+      }
+      
+      .globe-ring.lon-90 {
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
+        transform: rotateY(90deg);
+      }
+      
+      .globe-ring.lon-120 {
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
+        transform: rotateY(120deg);
+      }
+      
+      .globe-ring.lon-150 {
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
+        transform: rotateY(150deg);
+      }
+      
+      /* Sphere surface effect */
+      .globe-surface {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        left: 50%;
+        top: 50%;
+        margin-left: -100px;
+        margin-top: -100px;
+        border-radius: 50%;
+        background: radial-gradient(
+          ellipse 50% 50% at 30% 30%,
+          hsl(var(--primary) / 0.15) 0%,
+          hsl(var(--primary) / 0.05) 40%,
+          transparent 70%
+        );
+        box-shadow: 
+          inset -40px -40px 80px hsl(var(--background) / 0.3),
+          inset 10px 10px 30px hsl(var(--primary) / 0.1),
+          0 0 40px hsl(var(--primary) / 0.08);
+        pointer-events: none;
+      }
+      
+      @keyframes globeRotate {
+        0% { transform: rotateX(-15deg) rotateY(0deg); }
+        100% { transform: rotateX(-15deg) rotateY(360deg); }
+      }
+      
+      .setup-welcome-text {
+        font-size: 42px;
+        font-weight: 300;
+        color: hsl(var(--foreground));
+        text-align: center;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        letter-spacing: -1px;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 20px hsl(var(--background) / 0.8);
+      }
+      
+      .setup-welcome-text.fade-out {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      
+      .setup-welcome-text.fade-in {
+        animation: welcomeFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      
+      @keyframes welcomeFadeIn {
+        0% { opacity: 0; transform: translateY(15px); }
+        100% { opacity: 1; transform: translateY(0); }
       }
       
       .setup-field {
@@ -6522,26 +6780,6 @@
         background: rgba(255, 255, 255, 0.2);
       }
       
-      /* ============= VERSION PICKER DIALOG STYLES ============= */
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      
-      @keyframes scaleIn {
-        from { 
-          opacity: 0;
-          transform: scale(0.95);
-        }
-        to { 
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-      
-      .version-picker-overlay {
-        animation: fadeIn 0.2s ease;
-      }
     </style>
   </head>
   <body>
@@ -6574,30 +6812,51 @@
     <div id="setup-screen" class="setup-screen">
       <div class="setup-container">
         <div class="setup-header">
-          <div class="setup-logo">M</div>
+          <div class="setup-logo" id="setup-logo">M</div>
           <h1 class="setup-title">Welcome to M OS</h1>
           <p class="setup-subtitle">Let's set up your new desktop</p>
         </div>
         
-        <!-- Step 1: Username -->
+        <!-- Step 1: Welcome with cycling languages -->
         <div class="setup-step active" data-step="1">
-          <div class="setup-field">
-            <label class="setup-label">What's your name?</label>
-            <input type="text" class="setup-input" id="setup-username" placeholder="Enter your name" autocomplete="off" maxlength="32">
-            <p class="setup-hint">This will be displayed on the lockscreen</p>
+          <div class="setup-welcome-container">
+            <div class="setup-globe">
+              <div class="setup-globe-sphere">
+                <!-- Latitude rings -->
+                <div class="globe-ring lat-0"></div>
+                <div class="globe-ring lat-30"></div>
+                <div class="globe-ring lat-30-neg"></div>
+                <div class="globe-ring lat-60"></div>
+                <div class="globe-ring lat-60-neg"></div>
+                <!-- Longitude rings -->
+                <div class="globe-ring lon-0"></div>
+                <div class="globe-ring lon-30"></div>
+                <div class="globe-ring lon-60"></div>
+                <div class="globe-ring lon-90"></div>
+                <div class="globe-ring lon-120"></div>
+                <div class="globe-ring lon-150"></div>
+              </div>
+              <div class="globe-surface"></div>
+            </div>
+            <div class="setup-welcome-text" id="setup-welcome-text">Welcome</div>
           </div>
         </div>
         
-        <!-- Step 2: Password (optional) -->
+        <!-- Step 2: Username and Password -->
         <div class="setup-step" data-step="2">
           <div class="setup-field">
+            <label class="setup-label">What's your name?</label>
+            <input type="text" class="setup-input" id="setup-username" placeholder="Enter your name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true" maxlength="32">
+            <p class="setup-hint">This will be displayed on the lockscreen</p>
+          </div>
+          <div class="setup-field" style="margin-top: 20px;">
             <label class="setup-label">Set a password (optional)</label>
-            <input type="password" class="setup-input" id="setup-password" placeholder="Enter password" autocomplete="new-password">
+            <input type="password" class="setup-input" id="setup-password" placeholder="Enter password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true">
             <p class="setup-hint">Leave empty to skip password protection</p>
           </div>
           <div class="setup-field">
             <label class="setup-label">Confirm password</label>
-            <input type="password" class="setup-input" id="setup-password-confirm" placeholder="Confirm password" autocomplete="new-password">
+            <input type="password" class="setup-input" id="setup-password-confirm" placeholder="Confirm password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true">
           </div>
         </div>
         
@@ -6711,6 +6970,27 @@
     <div id="root"></div>
 
     <script>
+      // ╔═══════════════════════════════════════════════════════════════════╗
+      // ║                    M OS CONFIGURATION                             ║
+      // ║           Edit the values below to customize your OS              ║
+      // ╚═══════════════════════════════════════════════════════════════════╝
+      
+      const MOS_VERSION = 'MOS V1';  // Version display
+      
+      // ╔═══════════════════════════════════════════════════════════════════╗
+      // ║                    CHANGELOG - Add your changes here              ║
+      // ╚═══════════════════════════════════════════════════════════════════╝
+      const MOS_CHANGELOG = [
+        '• Initial release of M OS V1',
+        '• Added draggable windows with snap zones',
+        '• Implemented dock with pinned apps',
+        '• Added lockscreen with password protection',
+        '• Custom cursor support with animations',
+        '• Dark/Light theme toggle',
+        '• System sounds from LineageOS',
+      ];
+      // ══════════════════════════════════════════════════════════════════
+
       console.log('Script starting...');
       const state = {
         windows: [],
@@ -6761,7 +7041,8 @@
         activeCustomWallpaper: parseInt(localStorage.getItem('activeCustomWallpaper') || '-2'), // Index of active custom wallpaper (-2 for default Tahoe)
         customCursor: localStorage.getItem('customCursor') || null, // Custom cursor URL
         cursorPack: JSON.parse(localStorage.getItem('cursorPack') || 'null'), // Cursor pack with multiple cursors
-        scrollPositions: {}, // Store scroll positions per window
+        scrollPositions: {}, // Store scroll positions per window (vertical scrollTop)
+        scrollPositionsH: {}, // Store horizontal scroll positions per window (scrollLeft)
         isScrolling: false, // Track if user is actively scrolling
         scrollTimeout: null, // Timeout for scroll debouncing
         dockPosition: localStorage.getItem('dockPosition') || 'bottom', // Dock position: bottom (macOS style)
@@ -6849,193 +7130,11 @@
         notificationToastPosition: localStorage.getItem('notificationToastPosition') || 'top-center',
       };
       
-      // ============= M OS VERSION SYSTEM =============
-      const MOS_VERSION = 'MoS v1';
-      const MOS_UPDATE_REPO = 'https://api.github.com/repos/Matko802/my-web-os-things/contents/Versions';
-      const MOS_RAW_BASE = 'https://raw.githubusercontent.com/Matko802/my-web-os-things/main/Versions/';
-      let availableVersions = [];
-      let selectedVersionForDetails = null;
+      // ============= M OS VERSION =============
+      // Version is now defined at the top of the script for easy editing
       
       function getInstalledVersion() {
-        return localStorage.getItem('mos_version') || MOS_VERSION;
-      }
-      
-      function setInstalledVersion(version) {
-        localStorage.setItem('mos_version', version);
-      }
-      
-      function parseVersionNumber(versionStr) {
-        const match = versionStr.match(/MoS v(\d+)/i);
-        return match ? parseInt(match[1], 10) : 0;
-      }
-      
-      async function fetchAvailableVersions() {
-        try {
-          const response = await fetch(MOS_UPDATE_REPO);
-          if (!response.ok) return [];
-          const files = await response.json();
-          const versions = [];
-          for (const file of files) {
-            if (file.type === 'file' && file.name.endsWith('.html')) {
-              const versionNum = parseVersionNumber(file.name);
-              if (versionNum > 0) {
-                // Include file size from GitHub API response
-                const fileSize = file.size || 0;
-                versions.push({ 
-                  version: 'MoS v' + versionNum, 
-                  versionNum, 
-                  file: file.name, 
-                  downloadUrl: MOS_RAW_BASE + file.name,
-                  size: fileSize
-                });
-              }
-            }
-          }
-          versions.sort((a, b) => b.versionNum - a.versionNum);
-          return versions;
-        } catch (e) { return []; }
-      }
-      
-      // Format file size for display
-      function formatFileSize(bytes) {
-        if (bytes === 0) return 'Unknown size';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-      }
-      
-      function getVersionChangelog(versionNum) {
-        const changelogs = {
-          1: '• Initial release of M OS\n• Desktop environment with draggable windows\n• Dock with app launcher\n• Settings app with customization\n• Terminal emulator\n• File browser\n• Browser app',
-          2: '• Bug fixes and improvements\n• Enhanced window management\n• New customization options',
-          3: '• Performance improvements\n• UI refinements\n• New features'
-        };
-        return changelogs[versionNum] || '• Version ' + versionNum + ' release\n• Various improvements and fixes';
-      }
-      
-      window.downloadVersion = function(downloadUrl, fileName) {
-        fetch(downloadUrl).then(r => r.blob()).then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url; link.download = fileName;
-          document.body.appendChild(link); link.click();
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        }).catch(() => alert('Download failed. Try again.'));
-      };
-      
-      window.openVersionManager = async function() {
-        const existingWindow = state.windows.find(w => w.appId === 'versionmanager');
-        if (existingWindow) { window.focusWindow(existingWindow.id); return; }
-        state.isLoadingVersions = true;
-        window.createWindow('versionmanager', 'Version Manager');
-        availableVersions = await fetchAvailableVersions();
-        state.isLoadingVersions = false;
-        selectedVersionForDetails = null;
-        
-        // Directly update the version manager window content
-        const vmWindow = state.windows.find(w => w.appId === 'versionmanager');
-        if (vmWindow) {
-          const windowEl = document.getElementById(`window-${vmWindow.id}`);
-          if (windowEl) {
-            const windowContent = windowEl.querySelector('.window-content');
-            if (windowContent) {
-              windowContent.innerHTML = getVersionManagerContent();
-              return;
-            }
-          }
-        }
-        
-        // Fallback to renderWindows
-        renderWindows();
-      };
-      
-      window.selectVersionForDetails = function(versionNum) {
-        selectedVersionForDetails = versionNum;
-        
-        // Directly update the version manager window content instead of relying on renderWindows
-        const vmWindow = state.windows.find(w => w.appId === 'versionmanager');
-        if (vmWindow) {
-          const windowEl = document.getElementById(`window-${vmWindow.id}`);
-          if (windowEl) {
-            const windowContent = windowEl.querySelector('.window-content');
-            if (windowContent) {
-              // Save scroll positions for both panes (list + details)
-              const listEl = windowContent.querySelector('.versionmanager-list');
-              const detailsEl = windowContent.querySelector('.versionmanager-details');
-              const listScroll = listEl ? listEl.scrollTop : 0;
-              const detailsScroll = detailsEl ? detailsEl.scrollTop : 0;
-              
-              // Update content
-              windowContent.innerHTML = getVersionManagerContent();
-              
-              // Restore scroll positions
-              const newListEl = windowContent.querySelector('.versionmanager-list');
-              const newDetailsEl = windowContent.querySelector('.versionmanager-details');
-              if (newListEl) newListEl.scrollTop = listScroll;
-              if (newDetailsEl) newDetailsEl.scrollTop = detailsScroll;
-              return;
-            }
-          }
-        }
-        
-        // Fallback to renderWindows if direct update fails
-        renderWindows();
-      };
-      
-      function getVersionManagerContent() {
-        const currentVersion = getInstalledVersion();
-        const currentVersionNum = parseVersionNumber(currentVersion);
-        
-        if (state.isLoadingVersions) {
-          return '<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:hsl(var(--foreground));"><div style="font-size:32px;margin-bottom:16px;">⏳</div><div style="font-size:14px;color:hsl(var(--muted-foreground));">Loading versions...</div></div>';
-        }
-        
-        if (availableVersions.length === 0) {
-          return '<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:hsl(var(--foreground));"><div style="font-size:48px;margin-bottom:16px;">❌</div><div style="font-size:16px;font-weight:600;">No Versions Found</div><button onclick="window.openVersionManager()" style="margin-top:20px;padding:10px 20px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));border:none;border-radius:8px;cursor:pointer;">Retry</button></div>';
-        }
-        
-        const selectedVersion = selectedVersionForDetails ? availableVersions.find(v => v.versionNum === selectedVersionForDetails) : null;
-        
-        let listHTML = '';
-        availableVersions.forEach(v => {
-          const isCurrent = v.versionNum === currentVersionNum;
-          const isNewer = v.versionNum > currentVersionNum;
-          const isSelected = selectedVersionForDetails === v.versionNum;
-          const sizeStr = formatFileSize(v.size);
-          listHTML += '<div onclick="event.stopPropagation();window.selectVersionForDetails(' + v.versionNum + ')" style="padding:12px;margin:4px 0;border-radius:8px;cursor:pointer;background:' + (isSelected ? 'hsl(var(--primary)/0.15)' : 'transparent') + ';border:1px solid ' + (isSelected ? 'hsl(var(--primary)/0.3)' : 'transparent') + ';" onmouseover="if(!' + isSelected + ')this.style.background=\'hsl(var(--accent)/0.5)\'" onmouseout="if(!' + isSelected + ')this.style.background=\'transparent\'">';
-          listHTML += '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:14px;font-weight:600;color:hsl(var(--foreground));">' + v.version + '</span><span style="display:flex;gap:4px;">';
-          if (isCurrent) listHTML += '<span style="font-size:10px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));padding:2px 6px;border-radius:6px;">Current</span>';
-          if (isNewer) listHTML += '<span style="font-size:10px;background:#10b981;color:white;padding:2px 6px;border-radius:6px;">New</span>';
-          listHTML += '</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;"><span style="font-size:11px;color:hsl(var(--muted-foreground));">' + v.file + '</span><span style="font-size:10px;color:hsl(var(--muted-foreground));background:hsl(var(--accent)/0.5);padding:2px 6px;border-radius:4px;">📦 ' + sizeStr + '</span></div></div>';
-        });
-        
-        let detailsHTML = '';
-        if (selectedVersion) {
-          const changelog = getVersionChangelog(selectedVersion.versionNum);
-          const isCurrent = selectedVersion.versionNum === currentVersionNum;
-          const isNewer = selectedVersion.versionNum > currentVersionNum;
-          
-          detailsHTML = '<div style="padding:24px;border-bottom:1px solid hsl(var(--window-border));background:hsl(var(--accent)/0.1);"><div style="display:flex;align-items:center;justify-content:space-between;"><div><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:24px;font-weight:700;color:hsl(var(--foreground));">' + selectedVersion.version + '</span>';
-          if (isCurrent) detailsHTML += '<span style="font-size:12px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));padding:4px 10px;border-radius:8px;">Installed</span>';
-          else if (isNewer) detailsHTML += '<span style="font-size:12px;background:#10b981;color:white;padding:4px 10px;border-radius:8px;">Newer</span>';
-          else detailsHTML += '<span style="font-size:12px;background:hsl(var(--muted-foreground));color:white;padding:4px 10px;border-radius:8px;">Older</span>';
-          detailsHTML += '</div><div style="font-size:13px;color:hsl(var(--muted-foreground));margin-top:6px;">File: ' + selectedVersion.file + ' • <span style="color:hsl(var(--primary));">📦 ' + formatFileSize(selectedVersion.size) + '</span></div></div>';
-          detailsHTML += '<button onclick="event.stopPropagation();window.downloadVersion(\'' + selectedVersion.downloadUrl + '\',\'' + selectedVersion.file + '\')" style="padding:12px 24px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;" onmouseover="this.style.transform=\'scale(1.05)\'" onmouseout="this.style.transform=\'scale(1)\'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download (' + formatFileSize(selectedVersion.size) + ')</button></div></div>';
-          detailsHTML += '<div class="versionmanager-details" style="flex:1;padding:24px;overflow-y:auto;"><div style="font-size:16px;font-weight:600;color:hsl(var(--foreground));margin-bottom:16px;">📋 What\'s New</div>';
-          detailsHTML += '<div style="background:hsl(var(--accent)/0.3);border-radius:12px;padding:20px;font-size:14px;line-height:1.8;color:hsl(var(--foreground));white-space:pre-line;">' + changelog + '</div>';
-          if (!isCurrent) {
-            detailsHTML += '<div style="margin-top:24px;padding:16px;background:hsl(var(--accent)/0.2);border-radius:12px;border:1px solid hsl(var(--window-border));"><div style="font-size:14px;font-weight:600;color:hsl(var(--foreground));margin-bottom:8px;">How to Update</div><ol style="font-size:13px;color:hsl(var(--muted-foreground));margin:0;padding-left:20px;line-height:1.8;"><li>Click Download above</li><li>Replace your os.html file</li><li>Refresh the page</li></ol></div>';
-          } else {
-            detailsHTML += '<div style="margin-top:24px;padding:16px;background:hsl(var(--primary)/0.1);border-radius:12px;"><div style="font-size:14px;color:hsl(var(--foreground));display:flex;align-items:center;gap:8px;">✅ You are running this version.</div></div>';
-          }
-          detailsHTML += '</div>';
-        } else {
-          detailsHTML = '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:hsl(var(--muted-foreground));"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:64px;height:64px;margin-bottom:16px;opacity:0.5;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div style="font-size:16px;font-weight:500;">Select a version</div><div style="font-size:13px;margin-top:4px;">Click on a version to see details</div></div>';
-        }
-        
-        return '<div class="versionmanager-container" style="display:flex;height:100%;overflow:hidden;"><div class="versionmanager-sidebar" style="width:280px;border-right:1px solid hsl(var(--window-border) / 0.5);display:flex;flex-direction:column;flex-shrink:0;background:hsl(var(--accent) / 0.3);"><div style="padding:16px;border-bottom:1px solid hsl(var(--window-border) / 0.5);background:hsl(var(--accent)/0.3);"><div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:hsl(var(--muted-foreground));margin-bottom:4px;">Current Version</div><div style="font-size:16px;font-weight:600;color:hsl(var(--foreground));">' + currentVersion + '</div></div><div class="versionmanager-list" style="flex:1;overflow-y:auto;padding:8px;">' + listHTML + '</div></div><div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">' + detailsHTML + '</div></div>';
+        return MOS_VERSION;
       }
       
       // Upload lockscreen wallpaper
@@ -7702,16 +7801,68 @@
         cursor: 'default'
       };
       
+      // Welcome messages in different languages (like macOS)
+      const welcomeMessages = [
+        'Welcome',      // English
+        'مرحبا',         // Arabic
+        '歡迎',          // Chinese (Traditional)
+        '欢迎',          // Chinese (Simplified)
+        'Welkom',       // Dutch
+        'Bienvenue',    // French
+        'Willkommen',   // German
+        'स्वागत है',       // Hindi
+        'Selamat datang', // Indonesian
+        'Benvenuto',    // Italian
+        'ようこそ',       // Japanese
+        '환영합니다',     // Korean
+        'Bem-vindo',    // Portuguese
+        'Добро пожаловать', // Russian
+        'Bienvenido',   // Spanish
+        'Välkommen',    // Swedish
+        'ยินดีต้อนรับ',    // Thai
+        'Hoş geldiniz', // Turkish
+        'Ласкаво просимо', // Ukrainian
+        'Chào mừng',    // Vietnamese
+        'Vitajte',      // Slovak
+        'Vítejte',      // Czech
+      ];
+      let welcomeIndex = 0;
+      let welcomeInterval = null;
+      
+      function startWelcomeCycle() {
+        const welcomeText = document.getElementById('setup-welcome-text');
+        if (!welcomeText) return;
+        
+        welcomeInterval = setInterval(() => {
+          welcomeIndex = (welcomeIndex + 1) % welcomeMessages.length;
+          welcomeText.classList.add('fade-out');
+          
+          setTimeout(() => {
+            welcomeText.textContent = welcomeMessages[welcomeIndex];
+            welcomeText.classList.remove('fade-out');
+            welcomeText.classList.add('fade-in');
+            
+            setTimeout(() => {
+              welcomeText.classList.remove('fade-in');
+            }, 400);
+          }, 300);
+        }, 2000);
+      }
+      
+      function stopWelcomeCycle() {
+        if (welcomeInterval) {
+          clearInterval(welcomeInterval);
+          welcomeInterval = null;
+        }
+      }
+      
       function showSetupScreen() {
         const setupScreen = document.getElementById('setup-screen');
         if (setupScreen) {
-          setupScreen.style.display = 'flex'; // Restore display before showing
+          setupScreen.style.display = 'flex';
           setupScreen.classList.add('active');
-          // Focus first input after animation
-          setTimeout(() => {
-            const input = document.getElementById('setup-username');
-            if (input) input.focus();
-          }, 300);
+          // Start welcome animation
+          startWelcomeCycle();
         }
       }
       
@@ -7719,25 +7870,84 @@
         const setupScreen = document.getElementById('setup-screen');
         if (setupScreen) {
           setupScreen.classList.remove('active');
-          // Completely remove from DOM flow to prevent invisible element blocking
+          stopWelcomeCycle();
           setTimeout(() => {
             if (!setupScreen.classList.contains('active')) {
               setupScreen.style.display = 'none';
             }
-          }, 500); // Wait for fade out animation
+          }, 500);
         }
       }
       
-      function updateSetupStep(step) {
+      function updateSetupStep(step, direction = 'next') {
+        const currentStep = setupStep;
+        const isGoingForward = step > currentStep;
         setupStep = step;
         
-        // Update step visibility
-        document.querySelectorAll('.setup-step').forEach(el => {
-          el.classList.remove('active');
-          if (parseInt(el.dataset.step) === step) {
-            el.classList.add('active');
-          }
-        });
+        // Stop welcome cycle when leaving step 1
+        if (step > 1) {
+          stopWelcomeCycle();
+        } else {
+          startWelcomeCycle();
+        }
+        
+        // Spin the logo ONLY when going to next step (forward)
+        const logo = document.getElementById('setup-logo');
+        if (logo && isGoingForward && currentStep !== step) {
+          logo.classList.add('spinning');
+          setTimeout(() => logo.classList.remove('spinning'), 500);
+        }
+        
+        // Animate step transition with container resize morph
+        const container = document.querySelector('.setup-container');
+        const currentStepEl = document.querySelector(`.setup-step[data-step="${currentStep}"]`);
+        const nextStepEl = document.querySelector(`.setup-step[data-step="${step}"]`);
+        
+        if (container && currentStepEl && nextStepEl && currentStep !== step) {
+          // Lock current height before transition
+          const currentHeight = container.getBoundingClientRect().height;
+          container.style.height = `${currentHeight}px`;
+          container.style.overflow = 'hidden';
+          container.style.willChange = 'height';
+          
+          // Animate current step out
+          currentStepEl.classList.add('exiting');
+          currentStepEl.classList.remove('active');
+          
+          // After exit animation, swap content and FLIP the container height
+          setTimeout(() => {
+            currentStepEl.classList.remove('exiting');
+            currentStepEl.style.display = 'none';
+            
+            nextStepEl.style.display = 'block';
+            nextStepEl.classList.add('active');
+            
+            // Measure target height without visual jump
+            nextStepEl.style.visibility = 'hidden';
+            container.style.height = 'auto';
+            const targetHeight = container.getBoundingClientRect().height;
+            
+            // Revert to start height, then animate to target
+            container.style.height = `${currentHeight}px`;
+            void container.offsetHeight;
+            nextStepEl.style.visibility = '';
+            
+            container.style.transition = 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            requestAnimationFrame(() => {
+              container.style.height = `${targetHeight}px`;
+            });
+            
+            // Clean up after animation
+            setTimeout(() => {
+              container.style.height = '';
+              container.style.transition = '';
+              container.style.overflow = '';
+              container.style.willChange = '';
+            }, 420);
+          }, 280);
+        } else if (nextStepEl) {
+          nextStepEl.classList.add('active');
+        }
         
         // Update progress dots
         document.querySelectorAll('.setup-progress-dot').forEach(el => {
@@ -7764,11 +7974,8 @@
         
         // Focus appropriate input
         setTimeout(() => {
-          if (step === 1) {
+          if (step === 2) {
             const input = document.getElementById('setup-username');
-            if (input) input.focus();
-          } else if (step === 2) {
-            const input = document.getElementById('setup-password');
             if (input) input.focus();
           }
         }, 100);
@@ -7776,14 +7983,14 @@
       
       window.setupNextStep = function() {
         // Validate current step
-        if (setupStep === 1) {
+        if (setupStep === 2) {
           const username = document.getElementById('setup-username').value.trim();
           if (!username) {
             document.getElementById('setup-username').focus();
             return;
           }
           setupData.username = username;
-        } else if (setupStep === 2) {
+          
           const password = document.getElementById('setup-password').value;
           const confirm = document.getElementById('setup-password-confirm').value;
           if (password && password !== confirm) {
@@ -10427,13 +10634,19 @@
           // Set scrolling flag
           state.isScrolling = true;
           
-          // Save scroll position of the scrolled element
+          // Save scroll position of the scrolled element (both vertical and horizontal)
           const windowEl = e.target.closest('.window');
           if (windowEl) {
             const windowId = windowEl.dataset.id;
             if (windowId) {
               state.scrollPositions[windowId] = e.target.scrollTop;
+              state.scrollPositionsH[windowId] = e.target.scrollLeft;
             }
+          }
+          // Also save for specific elements
+          if (e.target.classList.contains('settings-content')) {
+            state.scrollPositions['settings-content'] = e.target.scrollTop;
+            state.scrollPositionsH['settings-content'] = e.target.scrollLeft;
           }
           
           // Clear previous timeout
@@ -10453,10 +10666,11 @@
           // ALWAYS save scroll positions on mousedown - this prevents scroll resets
           // when clicking anywhere in the OS
           const saveAllScrollPositions = () => {
-            // Save settings content scroll position
+            // Save settings content scroll position (vertical and horizontal)
             const settingsContent = document.querySelector('.settings-content');
             if (settingsContent) {
               state.scrollPositions['settings-content'] = settingsContent.scrollTop;
+              state.scrollPositionsH['settings-content'] = settingsContent.scrollLeft;
             }
             
             // Save settings sidebar scroll position
@@ -10465,13 +10679,14 @@
               state.scrollPositions['settings-sidebar'] = settingsSidebar.scrollTop;
             }
             
-            // Save all window-content scroll positions
+            // Save all window-content scroll positions (vertical and horizontal)
             document.querySelectorAll('.window-content').forEach(content => {
               const windowEl = content.closest('.window');
               if (windowEl) {
                 const windowId = windowEl.dataset.id;
                 if (windowId) {
                   state.scrollPositions[windowId] = content.scrollTop;
+                  state.scrollPositionsH[windowId] = content.scrollLeft;
                 }
               }
             });
@@ -11763,16 +11978,16 @@
                 
                 <!-- Lock Screen Preview - Landscape like actual lockscreen -->
                 <div style="background: hsl(var(--accent) / 0.4); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
-                  <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #1a0a4e 0%, #3d1a7a 25%, #1a3a8a 50%, #0a2a6a 75%, #0a1a4a 100%); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-shadow: 0 10px 40px rgba(0,0,0,0.4);">
+                  <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #1a0a4e 0%, #3d1a7a 25%, #1a3a8a 50%, #0a2a6a 75%, #0a1a4a 100%); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-shadow: 0 10px 40px rgba(0,0,0,0.4); container-type: inline-size;">
                     ${(lockscreenWallpaper || (useDesktopWp && state.customWallpaper)) ? `
                       <div style="position: absolute; inset: 0; background-image: url('${lockscreenWallpaper || state.customWallpaper}'); background-size: cover; background-position: center; filter: brightness(0.85);"></div>
                     ` : ''}
-                    <!-- Clock and date - centered in upper third -->
-                    <div style="position: relative; z-index: 1; text-align: center; margin-top: 15%;">
-                      <div id="lockscreen-preview-clock" style="font-size: clamp(48px, 10vw, 80px); color: white; font-family: ${previewFontFamily}; text-shadow: 0 2px 20px rgba(0,0,0,0.5); line-height: 1; font-weight: 200; letter-spacing: 2px; ${previewStyle}">
+                    <!-- Clock and date - centered in upper third, scales with container -->
+                    <div style="position: relative; z-index: 1; text-align: center; margin-top: 15%; width: 100%; padding: 0 10%;">
+                      <div id="lockscreen-preview-clock" style="font-size: min(14cqw, 80px); color: white; font-family: ${previewFontFamily}; text-shadow: 0 2px 20px rgba(0,0,0,0.5); line-height: 1; font-weight: 200; letter-spacing: 2px; ${previewStyle}">
                         ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: showSecs ? '2-digit' : undefined, hour12: use12Hr })}
                       </div>
-                      <div style="font-size: clamp(12px, 2vw, 18px); color: rgba(255,255,255,0.85); margin-top: 8px; text-shadow: 0 1px 8px rgba(0,0,0,0.4); font-weight: 300; letter-spacing: 0.5px;">
+                      <div style="font-size: min(3.5cqw, 18px); color: rgba(255,255,255,0.85); margin-top: 2%; text-shadow: 0 1px 8px rgba(0,0,0,0.4); font-weight: 300; letter-spacing: 0.5px;">
                         ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                       </div>
                     </div>
@@ -12192,7 +12407,6 @@
             
           case 'sound':
             const soundsInstalled = localStorage.getItem('lineageSoundsInstalled') === 'true';
-            const soundsEnabled = state.soundEnabled;
             const totalSounds = SOUND_CONFIG.files.length;
             const installedSounds = SOUND_CONFIG.files.filter(f => localStorage.getItem(`sound_${f}`)).length;
             
@@ -12202,24 +12416,24 @@
                 <div class="settings-item">
                   <div>
                     <div class="settings-label">Sound Effects</div>
-                    <div class="settings-description">Play system sounds</div>
+                    <div class="settings-description">Enable or disable LineageOS system sounds</div>
                   </div>
-                  <div class="toggle-switch ${soundsEnabled ? 'active' : ''}" onclick="event.stopPropagation(); window.toggleSound()">
+                  <div class="toggle-switch ${state.soundEnabled ? 'active' : ''}" onclick="toggleSound()">
                     <div class="toggle-switch-thumb"></div>
                   </div>
                 </div>
                 
-                <!-- Lineage OS Sound Theme -->
+                <!-- Lineage OS Sound Theme - Always installed -->
                 <div class="settings-item" style="flex-direction: column; align-items: flex-start; margin-top: 20px;">
                   <div style="width: 100%;">
                     <div class="settings-label" style="font-size: 16px; font-weight: 600;">Lineage OS Sound Theme</div>
-                    <div class="settings-description">High-quality system sounds cached locally for offline use</div>
+                    <div class="settings-description">High-quality system sounds (default theme - always active)</div>
                     
                     ${soundsInstalled ? `
                       <div style="margin-top: 12px; padding: 12px; background: hsl(175 80% 45% / 0.15); border: 1px solid hsl(175 80% 45% / 0.3); border-radius: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                           <span style="font-size: 18px;">✓</span>
-                          <span style="font-weight: 600; color: hsl(175 80% 45%);">Sound Pack Installed</span>
+                          <span style="font-weight: 600; color: hsl(175 80% 45%);">Sound Pack Installed (Default)</span>
                         </div>
                         <div style="font-size: 12px; color: hsl(var(--muted-foreground));">
                           ${installedSounds}/${totalSounds} sounds cached in localStorage
@@ -12231,22 +12445,19 @@
                           <button onclick="event.stopPropagation(); window.reinstallSoundsUI()" style="padding: 8px 14px; background: hsl(var(--accent)); color: hsl(var(--foreground)); border: none; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit;">
                             🔄 Reinstall
                           </button>
-                          <button onclick="event.stopPropagation(); window.clearSoundsUI()" style="padding: 8px 14px; background: transparent; color: hsl(var(--muted-foreground)); border: 1px solid hsl(var(--border)); border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit;">
-                            🗑️ Remove
-                          </button>
                         </div>
                       </div>
                     ` : `
-                      <div style="margin-top: 12px; padding: 12px; background: hsl(var(--accent) / 0.5); border: 1px solid hsl(var(--border)); border-radius: 10px;">
+                      <div style="margin-top: 12px; padding: 12px; background: hsl(45 100% 50% / 0.15); border: 1px solid hsl(45 100% 50% / 0.3); border-radius: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                          <span style="font-size: 18px;">🔈</span>
-                          <span style="font-weight: 500;">Lineage OS Sounds</span>
+                          <span style="font-size: 18px;">⏳</span>
+                          <span style="font-weight: 500; color: hsl(45 100% 50%);">Installing Sounds...</span>
                         </div>
                         <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 12px;">
-                          Download premium sound effects from Lineage OS for a richer experience. Sounds will be cached locally.
+                          LineageOS sounds are being downloaded automatically. They will be cached for offline use.
                         </div>
                         <button onclick="event.stopPropagation(); window.installSoundsUI()" style="padding: 10px 16px; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 500;">
-                          ⬇️ Download Sound Pack
+                          ⬇️ Force Reinstall
                         </button>
                       </div>
                     `}
@@ -12342,33 +12553,16 @@
                     <div class="toggle-switch-thumb"></div>
                   </div>
                 </div>
-                <div class="settings-item">
-                  <div>
-                    <div class="settings-label">MOS Version</div>
-                    <div class="settings-description">${currentVersion}</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="settings-section">
-                <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 24px; color: hsl(var(--foreground));">Version Management</h2>
-                <div class="settings-item">
-                  <div>
-                    <div class="settings-label">Current Version</div>
-                    <div class="settings-description">${currentVersion}</div>
-                  </div>
-                </div>
                 <div class="settings-item" style="flex-direction: column; align-items: flex-start;">
                   <div style="width: 100%;">
-                    <div class="settings-label">Change Version</div>
-                    <div class="settings-description">Download a different version of M OS from GitHub. After downloading, replace your os.html file and refresh.</div>
-                    <button 
-                      class="wallpaper-upload-btn" 
-                      onclick="event.stopPropagation(); window.openVersionManager()"
-                      style="margin-top: 12px;"
-                    >
-                      Change Version
-                    </button>
+                    <div class="settings-label">MOS Version</div>
+                    <div class="settings-description" style="margin-bottom: 12px;">${currentVersion}</div>
+                    <div style="background: hsl(var(--accent) / 0.5); border-radius: 10px; padding: 14px; margin-top: 8px;">
+                      <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px; color: hsl(var(--foreground));">Changelog</div>
+                      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); line-height: 1.7;">
+                        ${MOS_CHANGELOG.map(item => `<div style="margin-bottom: 4px;">${item}</div>`).join('')}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -12397,12 +12591,103 @@
         }
       }
 
+      // ============= DPI & VIEWPORT UTILITY FUNCTIONS =============
+      // Get device pixel ratio for DPI-aware calculations
+      function getDevicePixelRatio() {
+        return window.devicePixelRatio || 1;
+      }
+      
+      // Get dynamic default window size based on viewport
+      function getDynamicDefaultSize(appId) {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const dpr = getDevicePixelRatio();
+        
+        // Base sizes as percentage of viewport (adjusted by DPI)
+        // Higher DPI displays get relatively smaller windows
+        const dpiScale = Math.min(1, 1.5 / dpr); // Scale down for high DPI
+        
+        // App-specific default sizes (as viewport percentage)
+        const appSizeConfigs = {
+          settings: { widthPct: 0.55, heightPct: 0.7, minWidth: 500, minHeight: 400 },
+          browser: { widthPct: 0.7, heightPct: 0.8, minWidth: 400, minHeight: 300 },
+          terminal: { widthPct: 0.5, heightPct: 0.55, minWidth: 350, minHeight: 250 },
+          finder: { widthPct: 0.5, heightPct: 0.6, minWidth: 350, minHeight: 280 },
+          taskmanager: { widthPct: 0.6, heightPct: 0.65, minWidth: 500, minHeight: 350 },
+          minecraft: { widthPct: 0.75, heightPct: 0.85, minWidth: 640, minHeight: 480 },
+          default: { widthPct: 0.45, heightPct: 0.55, minWidth: 300, minHeight: 200 }
+        };
+        
+        const config = appSizeConfigs[appId] || appSizeConfigs.default;
+        
+        // Calculate dynamic size
+        let width = Math.round(vw * config.widthPct * dpiScale);
+        let height = Math.round(vh * config.heightPct * dpiScale);
+        
+        // Apply minimums
+        width = Math.max(config.minWidth, width);
+        height = Math.max(config.minHeight, height);
+        
+        // Cap at viewport bounds (with padding)
+        width = Math.min(width, vw - 80);
+        height = Math.min(height, vh - 100);
+        
+        return { width, height };
+      }
+      
+      // Get DPI-aware minimum window size
+      function getMinWindowSize(appId) {
+        const dpr = getDevicePixelRatio();
+        
+        // Scale min sizes based on DPI - higher DPI = smaller physical pixels = can use smaller min
+        const dpiScale = Math.max(0.7, 1 / dpr);
+        
+        const minSizes = {
+          settings: { width: Math.round(500 * dpiScale), height: Math.round(400 * dpiScale) },
+          browser: { width: Math.round(400 * dpiScale), height: Math.round(300 * dpiScale) },
+          terminal: { width: Math.round(300 * dpiScale), height: Math.round(200 * dpiScale) },
+          taskmanager: { width: Math.round(450 * dpiScale), height: Math.round(300 * dpiScale) },
+          minecraft: { width: Math.round(480 * dpiScale), height: Math.round(360 * dpiScale) },
+          default: { width: Math.round(250 * dpiScale), height: Math.round(180 * dpiScale) }
+        };
+        
+        // Absolute minimums regardless of DPI
+        const absoluteMin = { width: 200, height: 150 };
+        
+        const size = minSizes[appId] || minSizes.default;
+        return {
+          width: Math.max(absoluteMin.width, size.width),
+          height: Math.max(absoluteMin.height, size.height)
+        };
+      }
+      
+      // Get DPI-aware edge overflow limit (how much window can go off screen)
+      function getEdgeOverflowLimit() {
+        const dpr = getDevicePixelRatio();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        
+        // Base overflow is percentage of viewport, scaled by DPI
+        // Higher DPI = more physical pixels = can allow more overflow
+        const overflowScale = 0.3 + (dpr - 1) * 0.1; // 30% base + 10% per additional DPI
+        
+        return {
+          // How much can go off each edge (percentage of window size, adjusted by viewport)
+          left: Math.min(vw * 0.4, 400), // Max 40% of viewport or 400px
+          right: Math.min(vw * 0.4, 400),
+          top: 28, // Always keep below menubar
+          bottom: Math.min(vh * 0.3, 300) // Max 30% of viewport or 300px
+        };
+      }
+
       window.createWindow = function createWindow(appId, appName) {
         playSound('open');
         
         // Load saved window size from localStorage
         const savedSizes = JSON.parse(localStorage.getItem('windowSizes') || '{}');
-        const savedSize = savedSizes[appId] || { width: 600, height: 400 };
+        // Use dynamic default size based on viewport and DPI
+        const dynamicDefault = getDynamicDefaultSize(appId);
+        const savedSize = savedSizes[appId] || dynamicDefault;
         
         // Load saved window state from localStorage (position, maximize, snap, etc.)
         const savedWindowState = state.windowStates[appId];
@@ -13492,6 +13777,19 @@
             minute: '2-digit',
           });
         }
+        
+        // Also update the menubar clock element
+        const clockElement = document.querySelector('[data-element-id="clock"] button');
+        if (clockElement) {
+          clockElement.textContent = state.currentTime.toLocaleString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }).replace(',', '');
+        }
       }
 
       function getWindowContent(appId) {
@@ -13712,7 +14010,7 @@
                     <div class="iframe-click-interceptor" onclick="event.stopPropagation(); window.focusWindow(${windowId}); const browserWin = state.windows.find(w => w.id === ${windowId}); if(browserWin) { const iframe = this.parentElement.querySelector('iframe'); if(iframe) { iframe.focus(); if(iframe.contentWindow) iframe.contentWindow.focus(); } }"></div>
                     <div class="browser-iframe-blocker" onclick="window.browserBlockerClick(this)"></div>
                     <iframe class="browser-iframe" id="browser-iframe-${windowId}-${tab.id}" src="${tab.url}" 
-                      sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-pointer-lock" 
+                      sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation allow-pointer-lock"
                       allow="fullscreen; gamepad" tabindex="0"
                       onload="window.onBrowserTabLoad(${windowId}, ${tab.id})"></iframe>
                   </div>
@@ -13745,8 +14043,8 @@
                 </div>
                 <div class="browser-main">
                   <div class="browser-header" onmouseenter="window.browserHeaderEnter(this)" onmouseleave="window.browserHeaderLeave(this)">
-                    ${generateBookmarksBar()}
                     ${generateToolbar(savedValue || currentUrl, 'Search with M Search or enter URL')}
+                    ${generateBookmarksBar()}
                   </div>
                   <div class="browser-content-wrapper" style="position: relative;">
                     <div class="browser-tab-iframes">
@@ -13832,9 +14130,6 @@
               </div>
             </div>
           `;
-        }
-        if (appId === 'versionmanager') {
-          return getVersionManagerContent();
         }
         if (appId === 'taskmanager') {
           // Return initial structure immediately to prevent blank window
@@ -14612,7 +14907,7 @@
                 <div class="iframe-click-interceptor" onclick="event.stopPropagation(); window.focusWindow(${windowId}); const iframe = this.parentElement.querySelector('iframe'); if(iframe) { iframe.focus(); if(iframe.contentWindow) iframe.contentWindow.focus(); }"></div>
                 <div class="browser-iframe-blocker" onclick="window.browserBlockerClick(this)"></div>
                 <iframe class="browser-iframe" id="browser-iframe-${windowId}-${tab.id}" src="${tab.url}" 
-                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-pointer-lock" 
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation allow-pointer-lock"
                   allow="fullscreen; gamepad" tabindex="0"
                   onload="window.onBrowserTabLoad(${windowId}, ${tab.id})"></iframe>
               ` : getBrowserHomeContent(windowId)}
@@ -14637,8 +14932,8 @@
             </div>
             <div class="browser-main">
               <div class="browser-header" onmouseenter="window.browserHeaderEnter(this)" onmouseleave="window.browserHeaderLeave(this)">
-                ${generateBookmarksBar()}
                 ${generateToolbar()}
+                ${generateBookmarksBar()}
               </div>
               <div class="browser-content-wrapper" style="position: relative;">
                 <div class="browser-tab-iframes">
@@ -15017,7 +15312,7 @@
                 iframe.className = 'browser-iframe';
                 iframe.id = `browser-iframe-${windowId}-${tab.id}`;
                 iframe.src = tab.url;
-                iframe.sandbox = 'allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-pointer-lock';
+                iframe.sandbox = 'allow-same-origin allow-scripts allow-forms allow-top-navigation allow-pointer-lock';
                 iframe.allow = 'fullscreen; gamepad';
                 iframe.tabIndex = 0;
                 
@@ -15244,7 +15539,7 @@
               wrapper.innerHTML = `
                 <div class="browser-iframe-blocker" onclick="window.browserBlockerClick(this)"></div>
                 <iframe class="browser-iframe" id="browser-iframe-${windowId}-${activeTab.id}" src="${url}" 
-                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-pointer-lock" 
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation allow-pointer-lock" 
                   allow="fullscreen; gamepad" tabindex="0"
                   onload="window.onBrowserTabLoad(${windowId}, ${activeTab.id})"></iframe>
               `;
@@ -15685,7 +15980,7 @@
             <div style="color: #0f0;">  clear        - Clear the terminal</div>
             <div style="color: #0f0;">  date         - Display current date and time</div>
             <div style="color: #0f0;">  whoami       - Display current user</div>
-            <div style="color: #0f0;">  fastfetch    - Display system information</div>
+            <div style="color: #0f0;">  mfetch       - Display system information</div>
             <div style="color: #0f0;">  history      - Show command history</div>
             <div style="color: #0f0;">  mget install - Install apps (try: mget install minecraft)</div>
             <div style="color: #0f0;">  mget list    - List available apps</div>
@@ -15709,7 +16004,7 @@
         } else if (input === 'whoami') {
           const username = localStorage.getItem('mos_username') || 'user';
           state.terminalHistory[terminalId].push(`<div style="color: #0f0;">${username.toLowerCase().replace(/\s+/g, '')}</div>`);
-        } else if (input === 'fastfetch') {
+        } else if (input === 'mfetch') {
           const userAgent = navigator.userAgent;
           const platform = navigator.platform;
           const browserInfo = (() => {
@@ -15822,8 +16117,21 @@
           state.terminalHistory[terminalId].push(`<div style="color: #ff6b6b;">command not found: ${input}</div>`);
         }
 
-        // Save terminal history to localStorage
-        localStorage.setItem('terminalHistory', JSON.stringify(state.terminalHistory));
+        // Save terminal history to localStorage (limit size to prevent quota errors)
+        try {
+          const maxHistoryPerTerminal = 100;
+          const trimmedHistory = {};
+          for (const tid in state.terminalHistory) {
+            const hist = state.terminalHistory[tid];
+            trimmedHistory[tid] = hist.slice(-maxHistoryPerTerminal);
+          }
+          localStorage.setItem('terminalHistory', JSON.stringify(trimmedHistory));
+        } catch (e) {
+          // If still fails, clear old history
+          if (e.name === 'QuotaExceededError') {
+            localStorage.removeItem('terminalHistory');
+          }
+        }
 
         // Clear input and update only this terminal (not the entire page)
         e.target.value = '';
@@ -15930,10 +16238,18 @@
 
         if (e.target.classList.contains('resize-handle')) {
           const windowEl = e.target.closest('.window');
+          if (!windowEl) return;
           const windowId = parseInt(windowEl.dataset.id, 10);
           const win = state.windows.find((w) => w.id === windowId);
-          if (win) {
-            const direction = e.target.classList[1]; // Get direction class (se, sw, ne, nw, n, s, e, w)
+          if (win && !win.isMaximized && !win.isSnapped) {
+            // Get direction from data-direction attribute or fallback to class detection
+            let direction = e.target.dataset.direction;
+            if (!direction) {
+              // Fallback: find direction class (se, sw, ne, nw, n, s, e, w)
+              const classList = Array.from(e.target.classList);
+              const directions = ['se', 'sw', 'ne', 'nw', 'n', 's', 'e', 'w'];
+              direction = classList.find(cls => directions.includes(cls)) || 'se';
+            }
             resizeState = {
               id: windowId,
               direction: direction,
@@ -15947,6 +16263,7 @@
             };
             window.resizeState = resizeState;
             focusWindow(windowId);
+            e.preventDefault();
             e.stopPropagation();
           }
           return;
@@ -16330,13 +16647,16 @@
               let newX = e.clientX - dragState.startX;
               let newY = e.clientY - dragState.startY;
               
-              // Constrain to keep at least half the window visible on screen
-              const halfWidth = win.width / 2;
-              const halfHeight = win.height / 2;
-              const minX = -halfWidth;
-              const maxX = window.innerWidth - halfWidth;
-              const minY = 28; // Keep below menubar
-              const maxY = window.innerHeight - halfHeight;
+              // Constrain window position with DPI-aware edge limits
+              const overflow = getEdgeOverflowLimit();
+              // Calculate how much of the window must remain visible
+              const visibleMinX = Math.max(50, win.width - overflow.left); // At least 50px or width - overflow
+              const visibleMinY = Math.max(28, win.height - overflow.bottom);
+              
+              const minX = -(win.width - visibleMinX);
+              const maxX = window.innerWidth - visibleMinX;
+              const minY = overflow.top; // Keep below menubar
+              const maxY = window.innerHeight - visibleMinY;
               
               win.x = Math.max(minX, Math.min(maxX, newX));
               win.y = Math.max(minY, Math.min(maxY, newY));
@@ -16485,6 +16805,9 @@
             const dir = resizeState.direction;
             const fromCenter = resizeState.resizeFromCenter;
             
+            // App-specific minimum sizes (DPI-aware)
+            const { width: minWidth, height: minHeight } = getMinWindowSize(win.appId);
+            
             let newWidth = resizeState.startWidth;
             let newHeight = resizeState.startHeight;
             let newX = resizeState.startPosX;
@@ -16492,25 +16815,25 @@
             
             // Handle width changes
             if (dir.includes('e')) {
-              newWidth = Math.max(300, resizeState.startWidth + (fromCenter ? deltaX * 2 : deltaX));
+              newWidth = Math.max(minWidth, resizeState.startWidth + (fromCenter ? deltaX * 2 : deltaX));
               if (fromCenter) newX = resizeState.startPosX - deltaX;
             } else if (dir.includes('w')) {
-              newWidth = Math.max(300, resizeState.startWidth - deltaX);
+              newWidth = Math.max(minWidth, resizeState.startWidth - deltaX);
               newX = fromCenter ? resizeState.startPosX + deltaX : resizeState.startPosX + deltaX;
-              if (newWidth === 300) {
-                newX = resizeState.startPosX + resizeState.startWidth - 300;
+              if (newWidth === minWidth) {
+                newX = resizeState.startPosX + resizeState.startWidth - minWidth;
               }
             }
             
             // Handle height changes
             if (dir.includes('s')) {
-              newHeight = Math.max(200, resizeState.startHeight + (fromCenter ? deltaY * 2 : deltaY));
+              newHeight = Math.max(minHeight, resizeState.startHeight + (fromCenter ? deltaY * 2 : deltaY));
               if (fromCenter) newY = resizeState.startPosY - deltaY;
             } else if (dir.includes('n')) {
-              newHeight = Math.max(200, resizeState.startHeight - deltaY);
+              newHeight = Math.max(minHeight, resizeState.startHeight - deltaY);
               newY = fromCenter ? resizeState.startPosY + deltaY : resizeState.startPosY + deltaY;
-              if (newHeight === 200) {
-                newY = resizeState.startPosY + resizeState.startHeight - 200;
+              if (newHeight === minHeight) {
+                newY = resizeState.startPosY + resizeState.startHeight - minHeight;
               }
             }
             
@@ -17106,25 +17429,32 @@
             const deltaY = touch.clientY - resizeState.startY;
             const dir = resizeState.direction;
             
+            // App-specific minimum sizes
+            const minSizes = {
+              settings: { width: 550, height: 450 },
+              default: { width: 300, height: 200 }
+            };
+            const { width: minWidth, height: minHeight } = minSizes[win.appId] || minSizes.default;
+            
             let newWidth = resizeState.startWidth;
             let newHeight = resizeState.startHeight;
             let newX = resizeState.startPosX;
             let newY = resizeState.startPosY;
             
             if (dir.includes('e')) {
-              newWidth = Math.max(300, resizeState.startWidth + deltaX);
+              newWidth = Math.max(minWidth, resizeState.startWidth + deltaX);
             } else if (dir.includes('w')) {
-              newWidth = Math.max(300, resizeState.startWidth - deltaX);
+              newWidth = Math.max(minWidth, resizeState.startWidth - deltaX);
               newX = resizeState.startPosX + deltaX;
-              if (newWidth === 300) newX = resizeState.startPosX + resizeState.startWidth - 300;
+              if (newWidth === minWidth) newX = resizeState.startPosX + resizeState.startWidth - minWidth;
             }
             
             if (dir.includes('s')) {
-              newHeight = Math.max(200, resizeState.startHeight + deltaY);
+              newHeight = Math.max(minHeight, resizeState.startHeight + deltaY);
             } else if (dir.includes('n')) {
-              newHeight = Math.max(200, resizeState.startHeight - deltaY);
+              newHeight = Math.max(minHeight, resizeState.startHeight - deltaY);
               newY = resizeState.startPosY + deltaY;
-              if (newHeight === 200) newY = resizeState.startPosY + resizeState.startHeight - 200;
+              if (newHeight === minHeight) newY = resizeState.startPosY + resizeState.startHeight - minHeight;
             }
             
             win.width = newWidth;
@@ -17611,7 +17941,7 @@
                     </div>
                   `
                   : ''}
-                <div class="window-content" ondblclick="event.stopPropagation()">
+                <div class="window-content" ondblclick="event.stopPropagation()" onwheel="event.stopPropagation()">
                   ${getWindowContent(win.appId)}
                 </div>
                 ${win.isFullscreen
@@ -17630,14 +17960,14 @@
                   : ''}
                 ${!win.isMaximized && !win.isFullscreen
                   ? `
-                    <div class="resize-handle se"></div>
-                    <div class="resize-handle sw"></div>
-                    <div class="resize-handle ne"></div>
-                    <div class="resize-handle nw"></div>
-                    <div class="resize-handle n"></div>
-                    <div class="resize-handle s"></div>
-                    <div class="resize-handle e"></div>
-                    <div class="resize-handle w"></div>
+                    <div class="resize-handle se" data-direction="se"></div>
+                    <div class="resize-handle sw" data-direction="sw"></div>
+                    <div class="resize-handle ne" data-direction="ne"></div>
+                    <div class="resize-handle nw" data-direction="nw"></div>
+                    <div class="resize-handle n" data-direction="n"></div>
+                    <div class="resize-handle s" data-direction="s"></div>
+                    <div class="resize-handle e" data-direction="e"></div>
+                    <div class="resize-handle w" data-direction="w"></div>
                   `
                   : ''}
               </div>
@@ -17733,14 +18063,14 @@
         }
         
         if (!win.isMaximized && !win.isFullscreen) {
-          html += '<div class="resize-handle se"></div>';
-          html += '<div class="resize-handle sw"></div>';
-          html += '<div class="resize-handle ne"></div>';
-          html += '<div class="resize-handle nw"></div>';
-          html += '<div class="resize-handle n"></div>';
-          html += '<div class="resize-handle s"></div>';
-          html += '<div class="resize-handle e"></div>';
-          html += '<div class="resize-handle w"></div>';
+          html += '<div class="resize-handle se" data-direction="se"></div>';
+          html += '<div class="resize-handle sw" data-direction="sw"></div>';
+          html += '<div class="resize-handle ne" data-direction="ne"></div>';
+          html += '<div class="resize-handle nw" data-direction="nw"></div>';
+          html += '<div class="resize-handle n" data-direction="n"></div>';
+          html += '<div class="resize-handle s" data-direction="s"></div>';
+          html += '<div class="resize-handle e" data-direction="e"></div>';
+          html += '<div class="resize-handle w" data-direction="w"></div>';
         }
         
         html += '</div>';
@@ -19314,8 +19644,13 @@
           }
           
           const settingsContent = document.querySelector('.settings-content');
-          if (settingsContent && state.scrollPositions['settings-content'] !== undefined) {
-            settingsContent.scrollTop = state.scrollPositions['settings-content'];
+          if (settingsContent) {
+            if (state.scrollPositions['settings-content'] !== undefined) {
+              settingsContent.scrollTop = state.scrollPositions['settings-content'];
+            }
+            if (state.scrollPositionsH['settings-content'] !== undefined) {
+              settingsContent.scrollLeft = state.scrollPositionsH['settings-content'];
+            }
           }
           
           const settingsSidebar = document.querySelector('.settings-sidebar');
@@ -20209,19 +20544,18 @@
         showSettingsToast(state.animationsEnabled ? 'Animations enabled' : 'Animations disabled');
       };
 
+      // Sound toggle
       window.toggleSound = function toggleSound() {
         state.soundEnabled = !state.soundEnabled;
-        localStorage.setItem('soundEnabled', state.soundEnabled.toString());
-        
-        // Update toggle using helper function for reliable DOM update
-        updateToggleByLabel('Sound Effects', state.soundEnabled);
-        
-        // Show toast notification
+        localStorage.setItem('soundEnabled', state.soundEnabled ? 'true' : 'false');
         showSettingsToast(state.soundEnabled ? 'Sound effects enabled' : 'Sound effects disabled');
-        
-        // Play a test sound if enabling
         if (state.soundEnabled) {
           playSound('click');
+        }
+        // Re-render settings if open
+        const settingsContent = document.getElementById('settings-content');
+        if (settingsContent && state.settingsTab === 'sound') {
+          settingsContent.innerHTML = renderSettingsContent('sound');
         }
       };
 
@@ -20358,28 +20692,54 @@
         return false;
       }
       
-      // Play sound by type
+      // Play sound by type - LineageOS sounds only (no AI/synth fallback)
       function playSound(type) {
+        // Check if sounds are enabled
         if (!state.soundEnabled) return;
         
         const filename = SOUND_CONFIG.soundMap[type];
         if (!filename) {
-          // Fallback to synthesized sound
-          playSynthSound(type);
+          // No sound mapping for this type - silent
+          console.log('[Sound] No mapping for type:', type);
           return;
         }
         
         const soundData = getSound(filename);
         if (soundData) {
-          // Play from cached data
+          // Play from cached LineageOS sound
           playAudioFromDataUrl(soundData, type);
         } else {
-          // Fallback to synthesized sound if not cached
-          playSynthSound(type);
+          // Sound not cached yet - try to play directly from URL as fallback
+          playDirectFromUrl(filename, type);
         }
       }
       
-      // Play audio from data URL
+      // Play directly from GitHub URL if not cached
+      function playDirectFromUrl(filename, type) {
+        try {
+          const url = `${SOUND_CONFIG.baseUrl}/${filename}`;
+          let audio = audioCache.get(type);
+          if (!audio) {
+            audio = new Audio();
+            audioCache.set(type, audio);
+          }
+          
+          audio.src = url;
+          audio.volume = 0.5;
+          audio.currentTime = 0;
+          
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(e => {
+              console.warn('[Sound] Direct playback failed:', e.message);
+            });
+          }
+        } catch (error) {
+          console.warn('[Sound] Error playing from URL:', error);
+        }
+      }
+      
+      // Play audio from data URL - LineageOS sounds only
       function playAudioFromDataUrl(dataUrl, type) {
         try {
           // Use cached audio element or create new one
@@ -20401,117 +20761,20 @@
           }
         } catch (error) {
           console.warn('[Sound] Error playing audio:', error);
-          playSynthSound(type);
+          // No fallback - LineageOS sounds only
         }
       }
       
-      // Fallback synthesized sounds using Web Audio API
-      function playSynthSound(type) {
-        try {
-          const ctx = getAudioContext();
-          const now = ctx.currentTime;
-          const oscillator = ctx.createOscillator();
-          const gainNode = ctx.createGain();
-          
-          oscillator.connect(gainNode);
-          gainNode.connect(ctx.destination);
-          
-          switch(type) {
-            case 'open':
-              oscillator.frequency.setValueAtTime(300, now);
-              oscillator.frequency.exponentialRampToValueAtTime(800, now + 0.1);
-              gainNode.gain.setValueAtTime(0.15, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-              oscillator.start(now);
-              oscillator.stop(now + 0.15);
-              break;
-              
-            case 'close':
-              oscillator.frequency.setValueAtTime(800, now);
-              oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.1);
-              gainNode.gain.setValueAtTime(0.15, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-              oscillator.start(now);
-              oscillator.stop(now + 0.15);
-              break;
-              
-            case 'minimize':
-              oscillator.frequency.setValueAtTime(600, now);
-              oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.08);
-              gainNode.gain.setValueAtTime(0.12, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-              oscillator.start(now);
-              oscillator.stop(now + 0.1);
-              break;
-              
-            case 'click':
-            case 'focus':
-              oscillator.type = 'sine';
-              oscillator.frequency.setValueAtTime(800, now);
-              oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.03);
-              gainNode.gain.setValueAtTime(0.1, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-              oscillator.start(now);
-              oscillator.stop(now + 0.05);
-              break;
-              
-            case 'terminal-key':
-              oscillator.type = 'sine';
-              oscillator.frequency.setValueAtTime(600, now);
-              gainNode.gain.setValueAtTime(0.06, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
-              oscillator.start(now);
-              oscillator.stop(now + 0.03);
-              break;
-              
-            case 'terminal-enter':
-              oscillator.frequency.setValueAtTime(700, now);
-              oscillator.frequency.setValueAtTime(900, now + 0.06);
-              gainNode.gain.setValueAtTime(0.08, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-              oscillator.start(now);
-              oscillator.stop(now + 0.12);
-              break;
-              
-            case 'terminal-error':
-              oscillator.type = 'square';
-              oscillator.frequency.setValueAtTime(300, now);
-              oscillator.frequency.setValueAtTime(250, now + 0.08);
-              gainNode.gain.setValueAtTime(0.1, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-              oscillator.start(now);
-              oscillator.stop(now + 0.15);
-              break;
-              
-            case 'trash':
-              oscillator.type = 'sawtooth';
-              oscillator.frequency.setValueAtTime(200, now);
-              oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.15);
-              gainNode.gain.setValueAtTime(0.12, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-              oscillator.start(now);
-              oscillator.stop(now + 0.2);
-              break;
-              
-            default:
-              oscillator.frequency.setValueAtTime(500, now);
-              gainNode.gain.setValueAtTime(0.08, now);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-              oscillator.start(now);
-              oscillator.stop(now + 0.08);
-          }
-        } catch (e) {
-          // Silent fail - audio not supported or blocked
-        }
-      }
+      // Synth sounds removed - LineageOS sounds only
       
-      // Power and Boot Sound Effects - Uses LineageOS sounds when enabled, with synthesized fallback
+      // Power and Boot Sound Effects - Uses LineageOS sounds ONLY (no synth fallback)
       function playPowerSound(type) {
+        // Check if sounds are enabled
         if (!state.soundEnabled) return;
         
-        // Check if LineageOS sounds are installed and try to use them first
+        // Check if LineageOS sounds are installed and play them
         const filename = SOUND_CONFIG.soundMap[type];
-        if (filename && areSoundsInstalled()) {
+        if (filename) {
           const soundData = getSound(filename);
           if (soundData) {
             // Play LineageOS sound with slightly higher volume for power sounds
@@ -20521,112 +20784,22 @@
               const playPromise = audio.play();
               if (playPromise !== undefined) {
                 playPromise.catch(e => {
-                  console.warn('[PowerSound] LineageOS sound playback failed, using synthesized:', e.message);
-                  playSynthPowerSound(type);
+                  console.warn('[PowerSound] LineageOS sound playback failed:', e.message);
                 });
               }
               return; // Successfully started LineageOS sound
             } catch (error) {
-              console.warn('[PowerSound] Error playing LineageOS sound, using synthesized:', error);
+              console.warn('[PowerSound] Error playing LineageOS sound:', error);
             }
+          } else {
+            // Try direct URL playback
+            playDirectFromUrl(filename, type);
           }
         }
-        
-        // Fallback to synthesized sounds
-        playSynthPowerSound(type);
+        // No fallback - LineageOS sounds only
       }
       
-      // Synthesized power sounds (fallback when LineageOS sounds not available)
-      function playSynthPowerSound(type) {
-        try {
-          const ctx = getAudioContext();
-          const now = ctx.currentTime;
-          
-          switch(type) {
-            case 'powerOn':
-              // Ascending chime - "power up" feel
-              for (let i = 0; i < 3; i++) {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                
-                osc.type = 'sine';
-                const baseFreq = 300 + (i * 150);
-                osc.frequency.setValueAtTime(baseFreq, now + i * 0.12);
-                osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + i * 0.12 + 0.15);
-                
-                gain.gain.setValueAtTime(0, now + i * 0.12);
-                gain.gain.linearRampToValueAtTime(0.15 - i * 0.03, now + i * 0.12 + 0.05);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.12 + 0.25);
-                
-                osc.start(now + i * 0.12);
-                osc.stop(now + i * 0.12 + 0.25);
-              }
-              break;
-              
-            case 'boot':
-              // Warm startup hum with rising tone
-              const osc1 = ctx.createOscillator();
-              const osc2 = ctx.createOscillator();
-              const gain1 = ctx.createGain();
-              const gain2 = ctx.createGain();
-              
-              osc1.connect(gain1);
-              osc2.connect(gain2);
-              gain1.connect(ctx.destination);
-              gain2.connect(ctx.destination);
-              
-              // Base hum
-              osc1.type = 'sine';
-              osc1.frequency.setValueAtTime(80, now);
-              osc1.frequency.exponentialRampToValueAtTime(120, now + 0.8);
-              gain1.gain.setValueAtTime(0, now);
-              gain1.gain.linearRampToValueAtTime(0.08, now + 0.1);
-              gain1.gain.linearRampToValueAtTime(0.04, now + 0.6);
-              gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
-              
-              // Higher harmonic sparkle
-              osc2.type = 'triangle';
-              osc2.frequency.setValueAtTime(400, now + 0.2);
-              osc2.frequency.exponentialRampToValueAtTime(800, now + 0.7);
-              gain2.gain.setValueAtTime(0, now);
-              gain2.gain.setValueAtTime(0, now + 0.2);
-              gain2.gain.linearRampToValueAtTime(0.06, now + 0.35);
-              gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
-              
-              osc1.start(now);
-              osc2.start(now);
-              osc1.stop(now + 0.8);
-              osc2.stop(now + 0.8);
-              break;
-              
-            case 'powerOff':
-              // Descending fade - "power down" feel
-              for (let i = 0; i < 3; i++) {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                
-                osc.type = 'sine';
-                const baseFreq = 600 - (i * 150);
-                osc.frequency.setValueAtTime(baseFreq, now + i * 0.1);
-                osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.5, now + i * 0.1 + 0.2);
-                
-                gain.gain.setValueAtTime(0, now + i * 0.1);
-                gain.gain.linearRampToValueAtTime(0.12 - i * 0.03, now + i * 0.1 + 0.03);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.25);
-                
-                osc.start(now + i * 0.1);
-                osc.stop(now + i * 0.1 + 0.25);
-              }
-              break;
-          }
-        } catch (e) {
-          // Silent fail
-        }
-      }
+      // Synth power sounds removed - LineageOS sounds only
       
       // UI Helper functions for sound management
       window.installSoundsUI = async function installSoundsUI() {
@@ -20676,43 +20849,40 @@
         render();
       };
       
+      // clearSoundsUI disabled - sounds cannot be removed (always required)
       window.clearSoundsUI = function clearSoundsUI() {
-        if (!confirm('Remove all cached sounds? You can reinstall them later.')) return;
-        
-        // Clear all sound data
-        SOUND_CONFIG.files.forEach(file => {
-          localStorage.removeItem(`sound_${file}`);
-        });
-        localStorage.removeItem(SOUND_CONFIG.storageKey);
-        audioCache.clear();
-        
-        render();
+        showSettingsToast('LineageOS sounds are required and cannot be removed');
       };
       
       window.testSound = function testSound() {
         playSound('notification');
       };
       
-      // Initialize sound system on load - downloads sounds from GitHub on first boot
+      // Initialize sound system on load - FORCE downloads sounds from GitHub on first boot
       async function initSoundSystem() {
-        console.log('[Sound] Initializing sound system...');
+        console.log('[Sound] Initializing LineageOS sound system (FORCED)...');
         console.log('[Sound] Sounds installed:', areSoundsInstalled());
-        console.log('[Sound] Sounds enabled:', state.soundEnabled);
         
-        // Always try to install sounds on first boot (except for file: protocol)
-        if (!areSoundsInstalled() && !window.location.protocol.startsWith('file:')) {
-          console.log('[Sound] First boot - downloading Lineage OS sounds from GitHub...');
+        // Force sound to always be enabled - store in state
+        state.soundEnabled = true;
+        localStorage.setItem('soundEnabled', 'true');
+        
+        // FORCE install sounds on first boot - no exceptions
+        if (!areSoundsInstalled()) {
+          console.log('[Sound] FORCE downloading Lineage OS sounds from GitHub...');
           try {
             const success = await installSoundsFromGitHub();
             if (success) {
               console.log('[Sound] Lineage OS sounds installed successfully!');
+              // Play a sound to confirm installation
+              setTimeout(() => playSound('notification'), 500);
             } else {
-              console.log('[Sound] Download failed, will use synth sounds as fallback');
+              console.log('[Sound] Download failed - sounds may play directly from URL');
             }
           } catch (e) {
-            console.warn('[Sound] Auto-install failed, using synth fallback:', e);
+            console.warn('[Sound] Auto-install failed:', e);
           }
-        } else if (areSoundsInstalled()) {
+        } else {
           console.log('[Sound] Lineage OS sounds already installed');
         }
       }
@@ -22978,6 +23148,698 @@
         }
       })();
 
+      // ============= CUSTOM SCROLLBAR SYSTEM =============
+      // Creates custom scrollbars for all scrollable elements - both vertical and horizontal
+      
+      class CustomScrollbar {
+        constructor(element) {
+          if (element._customScrollbar) return; // Already initialized
+          element._customScrollbar = this;
+          
+          this.container = element;
+          this.isDraggingV = false;
+          this.isDraggingH = false;
+          this.startY = 0;
+          this.startX = 0;
+          this.startScrollTop = 0;
+          this.startScrollLeft = 0;
+          
+          this.init();
+        }
+        
+        init() {
+          // Create vertical scrollbar - use fixed positioning
+          this.vScrollbar = document.createElement('div');
+          this.vScrollbar.className = 'custom-scrollbar-v';
+          this.vScrollbar.style.cssText = `
+            position: fixed;
+            width: 8px;
+            background: hsl(var(--foreground) / 0.06);
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.25s ease, width 0.15s ease;
+            z-index: 1;
+            pointer-events: auto;
+          `;
+          
+          this.vThumb = document.createElement('div');
+          this.vThumb.className = 'custom-scrollbar-thumb-v';
+          this.vThumb.style.cssText = `
+            position: absolute;
+            right: 0;
+            width: 100%;
+            min-height: 30px;
+            background: hsl(var(--foreground) / 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+          `;
+          this.vScrollbar.appendChild(this.vThumb);
+          
+          // Create horizontal scrollbar - use fixed positioning
+          this.hScrollbar = document.createElement('div');
+          this.hScrollbar.className = 'custom-scrollbar-h';
+          this.hScrollbar.style.cssText = `
+            position: fixed;
+            height: 8px;
+            background: hsl(var(--foreground) / 0.06);
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.25s ease, height 0.15s ease;
+            z-index: 1;
+            pointer-events: auto;
+          `;
+          
+          this.hThumb = document.createElement('div');
+          this.hThumb.className = 'custom-scrollbar-thumb-h';
+          this.hThumb.style.cssText = `
+            position: absolute;
+            top: 0;
+            height: 100%;
+            min-width: 30px;
+            background: hsl(var(--foreground) / 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+          `;
+          this.hScrollbar.appendChild(this.hThumb);
+          
+          // Append scrollbars to parent window/panel if inside one, otherwise to body
+          // This ensures scrollbars are clipped by container boundaries and have correct z-index
+          this.parentWindow = this.container.closest('.window');
+          this.parentPanel = this.container.closest('.notification-panel, .quick-settings');
+          
+          if (this.parentPanel) {
+            // Inside a notification panel or quick settings - use absolute positioning
+            // and high z-index to stay above the panel content
+            if (getComputedStyle(this.parentPanel).overflow !== 'hidden') {
+              this.parentPanel.style.overflow = 'hidden';
+            }
+            this.vScrollbar.style.position = 'absolute';
+            this.hScrollbar.style.position = 'absolute';
+            // Set z-index higher than panel content but within the panel
+            this.vScrollbar.style.zIndex = '10';
+            this.hScrollbar.style.zIndex = '10';
+            this.parentPanel.appendChild(this.vScrollbar);
+            this.parentPanel.appendChild(this.hScrollbar);
+          } else if (this.parentWindow) {
+            // Ensure parent window has overflow hidden to clip scrollbars
+            if (getComputedStyle(this.parentWindow).overflow !== 'hidden') {
+              this.parentWindow.style.overflow = 'hidden';
+            }
+            // Use absolute positioning when inside a window
+            this.vScrollbar.style.position = 'absolute';
+            this.hScrollbar.style.position = 'absolute';
+            this.parentWindow.appendChild(this.vScrollbar);
+            this.parentWindow.appendChild(this.hScrollbar);
+          } else {
+            document.body.appendChild(this.vScrollbar);
+            document.body.appendChild(this.hScrollbar);
+          }
+          
+          this.bindEvents();
+          this.updatePosition();
+          this.update();
+        }
+        
+        updatePosition() {
+          // Get container's bounding rect
+          const rect = this.container.getBoundingClientRect();
+          
+          // Check if container is inside a window or panel (needs more offset for resize handles)
+          const isInWindow = this.parentWindow !== null;
+          const isInPanel = this.parentPanel !== null;
+          const edgeOffset = (isInWindow || isInPanel) ? 10 : 2;
+          const cornerOffset = (isInWindow || isInPanel) ? 22 : 4;
+          
+          // Scrollbars always visible and interactive regardless of window state
+          this.vScrollbar.style.pointerEvents = 'auto';
+          this.hScrollbar.style.pointerEvents = 'auto';
+          this.vScrollbar.style.visibility = 'visible';
+          this.hScrollbar.style.visibility = 'visible';
+          
+          // Handle positioning based on parent type
+          if (this.parentPanel) {
+            // Panel scrollbars - already have z-index set in init
+            // Calculate position relative to parent panel for absolute positioning
+            const panelRect = this.parentPanel.getBoundingClientRect();
+            const relativeTop = rect.top - panelRect.top;
+            const relativeLeft = rect.left - panelRect.left;
+            const relativeRight = panelRect.right - rect.right;
+            const relativeBottom = panelRect.bottom - rect.bottom;
+            
+            // Position vertical scrollbar relative to parent panel - moved 8px more to the right
+            this.vScrollbar.style.top = (relativeTop + cornerOffset) + 'px';
+            this.vScrollbar.style.right = (relativeRight + edgeOffset - 8) + 'px';
+            this.vScrollbar.style.height = (rect.height - (cornerOffset * 2) - (this.hasHorizontalScroll ? 12 : 0)) + 'px';
+            
+            // Position horizontal scrollbar relative to parent panel
+            this.hScrollbar.style.left = (relativeLeft + cornerOffset) + 'px';
+            this.hScrollbar.style.bottom = (relativeBottom + edgeOffset) + 'px';
+            this.hScrollbar.style.width = (rect.width - (cornerOffset * 2) - (this.hasVerticalScroll ? 12 : 0)) + 'px';
+          } else if (this.parentWindow) {
+            // Set z-index based on parent window's z-index (scrollbars should be just above their window)
+            const windowZIndex = parseInt(this.parentWindow.style.zIndex) || 1;
+            this.vScrollbar.style.zIndex = windowZIndex + 1;
+            this.hScrollbar.style.zIndex = windowZIndex + 1;
+            
+            // Calculate position relative to parent window for absolute positioning
+            const windowRect = this.parentWindow.getBoundingClientRect();
+            const relativeTop = rect.top - windowRect.top;
+            const relativeLeft = rect.left - windowRect.left;
+            const relativeRight = windowRect.right - rect.right;
+            const relativeBottom = windowRect.bottom - rect.bottom;
+            
+            // Position vertical scrollbar relative to parent window
+            this.vScrollbar.style.top = (relativeTop + cornerOffset) + 'px';
+            this.vScrollbar.style.right = (relativeRight + edgeOffset) + 'px';
+            this.vScrollbar.style.height = (rect.height - (cornerOffset * 2) - (this.hasHorizontalScroll ? 12 : 0)) + 'px';
+            
+            // Position horizontal scrollbar relative to parent window
+            this.hScrollbar.style.left = (relativeLeft + cornerOffset) + 'px';
+            this.hScrollbar.style.bottom = (relativeBottom + edgeOffset) + 'px';
+            this.hScrollbar.style.width = (rect.width - (cornerOffset * 2) - (this.hasVerticalScroll ? 12 : 0)) + 'px';
+          } else {
+            // Position using fixed positioning relative to viewport
+            this.vScrollbar.style.top = (rect.top + cornerOffset) + 'px';
+            this.vScrollbar.style.right = (window.innerWidth - rect.right + edgeOffset) + 'px';
+            this.vScrollbar.style.height = (rect.height - (cornerOffset * 2) - (this.hasHorizontalScroll ? 12 : 0)) + 'px';
+            
+            this.hScrollbar.style.left = (rect.left + cornerOffset) + 'px';
+            this.hScrollbar.style.bottom = (window.innerHeight - rect.bottom + edgeOffset) + 'px';
+            this.hScrollbar.style.width = (rect.width - (cornerOffset * 2) - (this.hasVerticalScroll ? 12 : 0)) + 'px';
+          }
+        }
+        
+        bindEvents() {
+          // Update on scroll and show scrollbars, then hide after delay
+          this.container.addEventListener('scroll', () => {
+            this.showScrollbars();
+            this.update();
+            // Auto-hide after scrolling stops
+            this.scheduleHide();
+          }, { passive: true });
+          
+          // Show scrollbars on hover, then schedule hide after inactivity
+          this.container.addEventListener('mouseenter', () => {
+            this.isHovering = true;
+            this.showScrollbars();
+            this.scheduleHide();
+          });
+          
+          this.container.addEventListener('mousemove', () => {
+            if (this.isHovering && !this.isHoveringScrollbar) {
+              this.showScrollbars();
+              this.scheduleHide();
+            }
+          });
+          
+          this.container.addEventListener('mouseleave', () => {
+            this.isHovering = false;
+            if (!this.isDraggingV && !this.isDraggingH) {
+              this.hideScrollbars();
+            }
+          });
+          
+          // Also show when hovering the scrollbars themselves
+          this.vScrollbar.addEventListener('mouseenter', () => {
+            this.isHoveringScrollbar = true;
+            this.showScrollbars();
+          });
+          this.hScrollbar.addEventListener('mouseenter', () => {
+            this.isHoveringScrollbar = true;
+            this.showScrollbars();
+          });
+          this.vScrollbar.addEventListener('mouseleave', () => {
+            this.isHoveringScrollbar = false;
+            if (!this.isDraggingV && !this.isDraggingH) this.hideScrollbars();
+          });
+          this.hScrollbar.addEventListener('mouseleave', () => {
+            this.isHoveringScrollbar = false;
+            if (!this.isDraggingV && !this.isDraggingH) this.hideScrollbars();
+          });
+          
+          // Vertical thumb drag
+          this.vThumb.addEventListener('mousedown', (e) => this.startDragV(e));
+          
+          // Horizontal thumb drag
+          this.hThumb.addEventListener('mousedown', (e) => this.startDragH(e));
+          
+          // Global mouse events
+          document.addEventListener('mousemove', (e) => this.onDrag(e));
+          document.addEventListener('mouseup', (e) => this.endDrag(e));
+          
+          // Track click to jump - vertical
+          this.vScrollbar.addEventListener('click', (e) => {
+            if (e.target === this.vScrollbar) {
+              const rect = this.vScrollbar.getBoundingClientRect();
+              const clickPos = e.clientY - rect.top;
+              const scrollRatio = clickPos / rect.height;
+              this.container.scrollTop = scrollRatio * (this.container.scrollHeight - this.container.clientHeight);
+            }
+          });
+          
+          // Track click to jump - horizontal
+          this.hScrollbar.addEventListener('click', (e) => {
+            if (e.target === this.hScrollbar) {
+              const rect = this.hScrollbar.getBoundingClientRect();
+              const clickPos = e.clientX - rect.left;
+              const scrollRatio = clickPos / rect.width;
+              this.container.scrollLeft = scrollRatio * (this.container.scrollWidth - this.container.clientWidth);
+            }
+          });
+          
+          // Hover effects
+          this.vThumb.addEventListener('mouseenter', () => {
+            this.vThumb.style.background = 'hsl(var(--foreground) / 0.45)';
+          });
+          this.vThumb.addEventListener('mouseleave', () => {
+            if (!this.isDraggingV) this.vThumb.style.background = 'hsl(var(--foreground) / 0.3)';
+          });
+          this.hThumb.addEventListener('mouseenter', () => {
+            this.hThumb.style.background = 'hsl(var(--foreground) / 0.45)';
+          });
+          this.hThumb.addEventListener('mouseleave', () => {
+            if (!this.isDraggingH) this.hThumb.style.background = 'hsl(var(--foreground) / 0.3)';
+          });
+          
+          // Observe resize and reposition scrollbars
+          if (window.ResizeObserver) {
+            this.resizeObserver = new ResizeObserver(() => {
+              this.updatePosition();
+              this.update();
+            });
+            this.resizeObserver.observe(this.container);
+          }
+          
+          // Update position on window resize/scroll
+          window.addEventListener('resize', () => this.updatePosition());
+          
+          // Update position when any parent scrolls (for nested scrollables)
+          let parent = this.container.parentElement;
+          while (parent) {
+            parent.addEventListener('scroll', () => this.updatePosition(), { passive: true });
+            parent = parent.parentElement;
+          }
+        }
+        
+        showScrollbars() {
+          // Clear any pending hide timeout
+          if (this.hideTimeout) {
+            clearTimeout(this.hideTimeout);
+            this.hideTimeout = null;
+          }
+          this.updatePosition();
+          this.update();
+          // Show scrollbars regardless of window state
+          if (this.hasVerticalScroll) this.vScrollbar.style.opacity = '1';
+          if (this.hasHorizontalScroll) this.hScrollbar.style.opacity = '1';
+        }
+        
+        hideScrollbars() {
+          // Don't hide if hovering scrollbar itself or dragging
+          if (this.isHoveringScrollbar || this.isDraggingV || this.isDraggingH) return;
+          
+          // Delay hiding for smooth fade out
+          if (this.hideTimeout) {
+            clearTimeout(this.hideTimeout);
+          }
+          this.hideTimeout = setTimeout(() => {
+            if (!this.isHoveringScrollbar && !this.isDraggingV && !this.isDraggingH) {
+              this.vScrollbar.style.opacity = '0';
+              this.hScrollbar.style.opacity = '0';
+            }
+            this.hideTimeout = null;
+          }, 300);
+        }
+        
+        scheduleHide() {
+          // Schedule hide after inactivity
+          if (this.scrollHideTimeout) {
+            clearTimeout(this.scrollHideTimeout);
+          }
+          this.scrollHideTimeout = setTimeout(() => {
+            if (!this.isDraggingV && !this.isDraggingH && !this.isHoveringScrollbar) {
+              this.hideScrollbars();
+            }
+            this.scrollHideTimeout = null;
+          }, 1200);
+        }
+        
+        update() {
+          const { scrollHeight, clientHeight, scrollTop, scrollWidth, clientWidth, scrollLeft } = this.container;
+          
+          // Check for vertical scroll
+          this.hasVerticalScroll = scrollHeight > clientHeight + 1;
+          this.hasHorizontalScroll = scrollWidth > clientWidth + 1;
+          
+          // Update position first
+          this.updatePosition();
+          
+          // Update vertical scrollbar
+          if (this.hasVerticalScroll) {
+            this.vScrollbar.style.display = 'block';
+            
+            const trackHeight = this.vScrollbar.clientHeight;
+            const thumbHeight = Math.max(30, (clientHeight / scrollHeight) * trackHeight);
+            const maxScroll = scrollHeight - clientHeight;
+            const scrollPercent = maxScroll > 0 ? scrollTop / maxScroll : 0;
+            const thumbTop = scrollPercent * (trackHeight - thumbHeight);
+            
+            this.vThumb.style.height = thumbHeight + 'px';
+            this.vThumb.style.top = thumbTop + 'px';
+          } else {
+            this.vScrollbar.style.display = 'none';
+          }
+          
+          // Update horizontal scrollbar
+          if (this.hasHorizontalScroll) {
+            this.hScrollbar.style.display = 'block';
+            
+            const trackWidth = this.hScrollbar.clientWidth;
+            const thumbWidth = Math.max(30, (clientWidth / scrollWidth) * trackWidth);
+            const maxScroll = scrollWidth - clientWidth;
+            const scrollPercent = maxScroll > 0 ? scrollLeft / maxScroll : 0;
+            const thumbLeft = scrollPercent * (trackWidth - thumbWidth);
+            
+            this.hThumb.style.width = thumbWidth + 'px';
+            this.hThumb.style.left = thumbLeft + 'px';
+          } else {
+            this.hScrollbar.style.display = 'none';
+          }
+        }
+        
+        startDragV(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.isDraggingV = true;
+          this.startY = e.clientY;
+          this.startScrollTop = this.container.scrollTop;
+          this.vThumb.style.background = 'hsl(var(--foreground) / 0.55)';
+          document.body.style.userSelect = 'none';
+          document.body.style.cursor = 'grabbing';
+        }
+        
+        startDragH(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.isDraggingH = true;
+          this.startX = e.clientX;
+          this.startScrollLeft = this.container.scrollLeft;
+          this.hThumb.style.background = 'hsl(var(--foreground) / 0.55)';
+          document.body.style.userSelect = 'none';
+          document.body.style.cursor = 'grabbing';
+        }
+        
+        onDrag(e) {
+          if (this.isDraggingV) {
+            const deltaY = e.clientY - this.startY;
+            const trackHeight = this.vScrollbar.clientHeight;
+            const thumbHeight = this.vThumb.clientHeight;
+            const maxThumbMove = trackHeight - thumbHeight;
+            if (maxThumbMove > 0) {
+              const scrollRatio = (this.container.scrollHeight - this.container.clientHeight) / maxThumbMove;
+              this.container.scrollTop = this.startScrollTop + deltaY * scrollRatio;
+            }
+          }
+          
+          if (this.isDraggingH) {
+            const deltaX = e.clientX - this.startX;
+            const trackWidth = this.hScrollbar.clientWidth;
+            const thumbWidth = this.hThumb.clientWidth;
+            const maxThumbMove = trackWidth - thumbWidth;
+            if (maxThumbMove > 0) {
+              const scrollRatio = (this.container.scrollWidth - this.container.clientWidth) / maxThumbMove;
+              this.container.scrollLeft = this.startScrollLeft + deltaX * scrollRatio;
+            }
+          }
+        }
+        
+        endDrag(e) {
+          const wasDragging = this.isDraggingV || this.isDraggingH;
+          
+          if (this.isDraggingV) {
+            this.isDraggingV = false;
+            this.vThumb.style.background = 'hsl(var(--foreground) / 0.3)';
+          }
+          
+          if (this.isDraggingH) {
+            this.isDraggingH = false;
+            this.hThumb.style.background = 'hsl(var(--foreground) / 0.3)';
+          }
+          
+          if (wasDragging) {
+            document.body.style.userSelect = '';
+            document.body.style.cursor = '';
+            
+            // Check if mouse is still over container
+            if (e) {
+              const rect = this.container.getBoundingClientRect();
+              if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+                this.hideScrollbars();
+              }
+            }
+          }
+        }
+        
+        destroy() {
+          if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+          }
+          this.vScrollbar.remove();
+          this.hScrollbar.remove();
+          delete this.container._customScrollbar;
+        }
+      }
+      
+      // Initialize custom scrollbars on all scrollable elements
+      function initCustomScrollbars() {
+        // All app-specific scrollable selectors
+        const scrollableSelectors = [
+          // Settings app
+          '.settings-content',
+          '.settings-sidebar',
+          '.settings-section',
+          // Terminal
+          '.terminal-content',
+          '.terminal-output',
+          // File Manager
+          '.file-manager-content',
+          '.file-manager-sidebar',
+          '.file-list',
+          '.folder-tree',
+          // Browser
+          '.browser-content',
+          '.browser-history-panel',
+          '.browser-bookmarks',
+          '.browser-tabs-container',
+          // Notes
+          '.notes-content',
+          '.notes-list',
+          '.notes-sidebar',
+          '.note-editor',
+          // Calendar
+          '.calendar-content',
+          '.calendar-events',
+          '.calendar-sidebar',
+          // Mail
+          '.mail-content',
+          '.mail-list',
+          '.mail-sidebar',
+          '.mail-preview',
+          '.mail-compose',
+          // Photos
+          '.photos-content',
+          '.photos-grid',
+          '.photos-sidebar',
+          '.album-content',
+          // Music
+          '.music-content',
+          '.music-list',
+          '.music-sidebar',
+          '.playlist-content',
+          // Calculator (history)
+          '.calculator-history',
+          // Weather
+          '.weather-content',
+          '.weather-details',
+          // Maps
+          '.maps-sidebar',
+          '.maps-search-results',
+          // App Store
+          '.app-store-content',
+          '.app-list',
+          '.app-details',
+          // Messages
+          '.messages-content',
+          '.messages-list',
+          '.messages-sidebar',
+          '.chat-messages',
+          // Contacts
+          '.contacts-content',
+          '.contacts-list',
+          '.contacts-sidebar',
+          '.contact-details',
+          // Reminders
+          '.reminders-content',
+          '.reminders-list',
+          '.reminders-sidebar',
+          // Books
+          '.books-content',
+          '.books-list',
+          '.book-reader',
+          // Podcasts
+          '.podcasts-content',
+          '.podcasts-list',
+          '.podcast-episodes',
+          // News
+          '.news-content',
+          '.news-list',
+          '.news-article',
+          // Stocks
+          '.stocks-content',
+          '.stocks-list',
+          '.stock-details',
+          // Home
+          '.home-content',
+          '.home-devices',
+          '.home-rooms',
+          // FaceTime
+          '.facetime-contacts',
+          '.facetime-history',
+          // Finder
+          '.finder-content',
+          '.finder-sidebar',
+          '.finder-list',
+          // Preview
+          '.preview-content',
+          '.preview-sidebar',
+          // TextEdit
+          '.textedit-content',
+          '.document-content',
+          // System Preferences panels
+          '.preferences-panel',
+          '.preferences-content',
+          // Launchpad
+          '.launchpad-grid-wrapper',
+          // Notification Center
+          '.notification-panel-content',
+          '.notifications-list',
+          // Quick Settings
+          '.quick-settings',
+          // Control Center
+          '.control-center-content',
+          // Spotlight
+          '.spotlight-results',
+          // General window content
+          '.window-content',
+          '.window-body',
+          '.app-content',
+          '.app-body',
+          '.modal-content',
+          '.modal-body',
+          '.dialog-content',
+          '.dialog-body',
+          '.panel-content',
+          '.sidebar',
+          '.content-area',
+          '.scroll-container',
+          '.scrollable',
+          // Catch-all for inline styles
+          '[style*="overflow: auto"]',
+          '[style*="overflow-y: auto"]',
+          '[style*="overflow-x: auto"]',
+          '[style*="overflow: scroll"]',
+          '[style*="overflow-y: scroll"]',
+          '[style*="overflow-x: scroll"]',
+          '[data-scrollable="true"]',
+        ];
+        
+        // Initialize for all matching selectors
+        scrollableSelectors.forEach(selector => {
+          try {
+            document.querySelectorAll(selector).forEach(el => {
+              if (el._customScrollbar) return; // Already has scrollbar
+              const style = getComputedStyle(el);
+              const hasOverflow = style.overflowY === 'auto' || style.overflowY === 'scroll' || 
+                                  style.overflowX === 'auto' || style.overflowX === 'scroll' ||
+                                  style.overflow === 'auto' || style.overflow === 'scroll';
+              if (hasOverflow) {
+                new CustomScrollbar(el);
+              }
+            });
+          } catch (e) {
+            // Ignore invalid selectors
+          }
+        });
+        
+        // Also scan ALL elements with overflow (vertical OR horizontal)
+        document.querySelectorAll('*').forEach(el => {
+          if (el._customScrollbar) return;
+          // Skip scrollbar elements themselves
+          if (el.classList?.contains('custom-scrollbar-v') || 
+              el.classList?.contains('custom-scrollbar-h') ||
+              el.classList?.contains('custom-scrollbar-thumb-v') ||
+              el.classList?.contains('custom-scrollbar-thumb-h')) return;
+          
+          const style = getComputedStyle(el);
+          const hasVerticalScroll = (style.overflowY === 'auto' || style.overflowY === 'scroll') && 
+                                    el.scrollHeight > el.clientHeight + 1;
+          const hasHorizontalScroll = (style.overflowX === 'auto' || style.overflowX === 'scroll') && 
+                                      el.scrollWidth > el.clientWidth + 1;
+          if (hasVerticalScroll || hasHorizontalScroll) {
+            new CustomScrollbar(el);
+          }
+        });
+      }
+      
+      // Re-init scrollbars after render
+      const originalRender = typeof render !== 'undefined' ? render : null;
+      
+      // Debounced scrollbar init
+      let scrollbarInitTimeout = null;
+      function debouncedScrollbarInit() {
+        if (scrollbarInitTimeout) clearTimeout(scrollbarInitTimeout);
+        scrollbarInitTimeout = setTimeout(initCustomScrollbars, 100);
+      }
+      
+      // Hook into MutationObserver to catch new scrollable elements
+      const scrollbarObserver = new MutationObserver((mutations) => {
+        let shouldInit = false;
+        mutations.forEach(mutation => {
+          if (mutation.addedNodes.length > 0) {
+            mutation.addedNodes.forEach(node => {
+              if (node.nodeType === 1) {
+                // Check if it's any window or scrollable element
+                if (node.classList?.contains('window') ||
+                    node.classList?.contains('modal') ||
+                    node.classList?.contains('dialog') ||
+                    node.classList?.contains('panel') ||
+                    node.querySelector?.('[class*="content"]') ||
+                    node.querySelector?.('[class*="list"]') ||
+                    node.querySelector?.('[class*="sidebar"]')) {
+                  shouldInit = true;
+                }
+              }
+            });
+          }
+        });
+        if (shouldInit) {
+          debouncedScrollbarInit();
+        }
+      });
+      
+      // Start observing after DOM is ready
+      document.addEventListener('DOMContentLoaded', () => {
+        scrollbarObserver.observe(document.body, { childList: true, subtree: true });
+        initCustomScrollbars();
+      });
+      
+      // Also init after delays to catch dynamic content
+      setTimeout(initCustomScrollbars, 500);
+      setTimeout(initCustomScrollbars, 1500);
+      setTimeout(initCustomScrollbars, 3000);
+
       // Expose render functions globally for use throughout the application
       window.render = render;
       window.renderWindows = renderWindows;
@@ -22987,6 +23849,7 @@
       window.generateSingleWindowHTML = generateSingleWindowHTML;
       window.computeWindowState = computeWindowState;
       window.patchWindow = patchWindow;
+      window.initCustomScrollbars = initCustomScrollbars;
       
       console.log('Starting init...');
       try {
